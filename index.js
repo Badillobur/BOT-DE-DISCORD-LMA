@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const fs = require('fs-extra');
 const colors = require('colors');
 const config = require('./config.json');
+const { connectDB } = require('./db');
 const LogManager = require('./utils/logManager');
 const BackupManager = require('./utils/backupManager');
 
@@ -34,6 +34,9 @@ client.once('ready', async () => {
     
     // Inicializar sistemas
     try {
+        // Conectar MongoDB
+        await connectDB();
+
         await LogManager.initialize();
         console.log('📝 Sistema de logs inicializado'.green);
         
