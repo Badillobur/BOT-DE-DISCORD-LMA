@@ -1,5 +1,6 @@
 const { ChannelType, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { Announcement, GuildConfig, Ticket: TicketModel } = require('../db');
+const { GuildConfig, Ticket: TicketModel } = require('../db');
+const { readAnnouncements } = require('./githubStorage');
 
 class TicketHandler {
 
@@ -10,8 +11,9 @@ class TicketHandler {
             const announcementKey = interaction.customId.replace('ticket_select_', '');
             const selectedValue = interaction.values[0];
 
-            // Buscar anuncio en MongoDB
-            const announcement = await Announcement.findById(announcementKey);
+            // Buscar anuncio en githubStorage
+            const announcements = await readAnnouncements();
+            const announcement = announcements[announcementKey];
             if (!announcement) {
                 return await interaction.editReply({ content: '❌ Anuncio no encontrado.' });
             }

@@ -5,7 +5,8 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const { connectDB, Announcement, GuildConfig, Ticket } = require('./db');
+const { connectDB, GuildConfig, Ticket: TicketModel } = require('./db');
+const { readAnnouncements, writeAnnouncements } = require('./utils/githubStorage');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,10 +52,8 @@ app.post('/api/auth/login', (req, res) => {
 // Obtener todos
 app.get('/api/announcements', auth, async (req, res) => {
     try {
-        const list = await Announcement.find();
-        const obj = {};
-        list.forEach(a => { obj[a._id] = { title: a.title, description: a.description, color: a.color, image: a.image, options: a.options }; });
-        res.json(obj);
+        const announcements = await readAnnouncements();
+        res.json(announcements);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -65,9 +64,10 @@ app.post('/api/announcements', auth, async (req, res) => {
         if (!id || !announcement) return res.status(400).json({ error: 'ID y datos requeridos' });
         const clean = id.toLowerCase().replace(/[^a-z0-9_-]/g, '');
         if (!clean) return res.status(400).json({ error: 'ID inválido' });
-        const existing = await Announcement.findById(clean);
-        if (existing) return res.status(400).json({ error: `Ya existe un anuncio con ID "${clean}"` });
-        await Announcement.create({ _id: clean, ...announcement });
+        const announcements = await readAnnouncements();
+        if (announcements[clean]) return res.status(400).json({ error: `Ya existe un anuncio con ID "${clean}"` });
+        announcements[clean] = announcement;
+        await writeAnnouncements(announcements);
         res.json({ success: true, message: 'Anuncio creado exitosamente' });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -75,9 +75,10 @@ app.post('/api/announcements', auth, async (req, res) => {
 // Actualizar anuncio
 app.put('/api/announcements/:id', auth, async (req, res) => {
     try {
-        const { id } = req.params;
-        const updated = await Announcement.findByIdAndUpdate(id, req.body, { new: true });
-        if (!updated) return res.status(404).json({ error: 'Anuncio no encontrado' });
+        const announcements = await readAnnouncements();
+        if (!announcements[req.params.id]) return res.status(404).json({ error: 'Anuncio no encontrado' });
+        announcements[req.params.id] = req.body;
+        await writeAnnouncements(announcements);
         res.json({ success: true, message: 'Anuncio actualizado' });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -85,8 +86,10 @@ app.put('/api/announcements/:id', auth, async (req, res) => {
 // Eliminar anuncio
 app.delete('/api/announcements/:id', auth, async (req, res) => {
     try {
-        const deleted = await Announcement.findByIdAndDelete(req.params.id);
-        if (!deleted) return res.status(404).json({ error: 'Anuncio no encontrado' });
+        const announcements = await readAnnouncements();
+        if (!announcements[req.params.id]) return res.status(404).json({ error: 'Anuncio no encontrado' });
+        delete announcements[req.params.id];
+        await writeAnnouncements(announcements);
         res.json({ success: true, message: 'Anuncio eliminado' });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -96,44 +99,33 @@ app.post('/api/announcements/:id/send', auth, async (req, res) => {
     try {
         const { channelId } = req.body;
         if (!channelId) return res.status(400).json({ error: 'ID del canal requerido' });
-
-        const announcement = await Announcement.findById(req.params.id);
+        const announcements = await readAnnouncements();
+        const announcement = announcements[req.params.id];
         if (!announcement) return res.status(404).json({ error: 'Anuncio no encontrado' });
         if (!announcement.options || announcement.options.length === 0)
             return res.status(400).json({ error: 'El anuncio necesita al menos una opción de ticket' });
-
         let client;
         try { client = require('./index.js'); } catch (e) {
             return res.status(500).json({ error: 'Bot no disponible. Verifica que el token sea correcto.' });
         }
-
         const channel = client.channels.cache.get(channelId);
         if (!channel) return res.status(404).json({ error: 'Canal no encontrado. Verifica el ID y que el bot esté en ese servidor.' });
-
         const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
-
         const embed = new EmbedBuilder()
             .setTitle(announcement.title)
             .setDescription(announcement.description)
             .setColor(announcement.color || '#FFD700')
             .setTimestamp();
         if (announcement.image) embed.setImage(announcement.image);
-
         const select = new StringSelectMenuBuilder()
-            .setCustomId('ticket_select_' + announcement._id)
+            .setCustomId('ticket_select_' + req.params.id)
             .setPlaceholder('Seleccionar una opción');
-
         announcement.options.forEach(opt => {
             const o = { label: opt.label, description: opt.description, value: opt.value };
             if (opt.emoji) o.emoji = opt.emoji;
             select.addOptions(o);
         });
-
-        await channel.send({
-            embeds: [embed],
-            components: [new ActionRowBuilder().addComponents(select)]
-        });
-
+        await channel.send({ embeds: [embed], components: [new ActionRowBuilder().addComponents(select)] });
         res.json({ success: true, message: `Anuncio enviado al canal <#${channelId}>` });
     } catch (e) {
         console.error('Error enviando anuncio:', e);
