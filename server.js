@@ -54,6 +54,11 @@ app.get('/', (req, res) => {
     res.render('index', { title: 'Discord Bot Panel' });
 });
 
+// Ping endpoint para auto-keep-alive
+app.get('/ping', (req, res) => {
+    res.json({ status: 'ok', uptime: process.uptime() });
+});
+
 // Panel de control
 app.get('/panel', (req, res) => {
     res.render('panel', { title: 'Panel de Control' });
@@ -466,7 +471,18 @@ app.use((req, res) => {
 app.listen(PORT, () => {
     console.log(`🌐 Servidor web iniciado en puerto ${PORT}`.green);
     console.log(`📱 Panel: http://localhost:${PORT}`.cyan);
-    
+
+    // Auto-ping para evitar que Render apague el servicio (plan gratuito)
+    const APP_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+    setInterval(async () => {
+        try {
+            await fetch(`${APP_URL}/ping`);
+            console.log('🏓 Auto-ping enviado'.gray);
+        } catch (e) {
+            // silencioso
+        }
+    }, 14 * 60 * 1000); // cada 14 minutos
+
     // Iniciar bot en paralelo
     if (process.env.NODE_ENV !== 'web-only') {
         require('./index.js');
