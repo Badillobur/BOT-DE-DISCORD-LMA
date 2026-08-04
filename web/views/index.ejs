@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #FFD700;
+            --secondary-color: #FFA500;
+            --dark-color: #2C3E50;
+            --light-color: #F8F9FA;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark-color) 0%, #34495e 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .hero-section {
+            padding: 100px 0;
+            text-align: center;
+            color: white;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            color: var(--dark-color);
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            color: var(--dark-color);
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            color: white;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .login-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 50px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
+            color: white;
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .alert-custom {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">
+                <i class="fas fa-robot"></i>
+                Discord Bot Panel
+            </h1>
+            <p class="hero-subtitle">
+                Panel de control web para gestionar tu bot de Discord con sistema de tickets personalizable
+            </p>
+            <a href="#login" class="btn btn-primary-custom">
+                <i class="fas fa-sign-in-alt"></i>
+                Acceder al Panel
+            </a>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <h4>Sistema de Tickets</h4>
+                    <p>Gestiona tickets automáticos con menús desplegables personalizables y canales privados.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h4>Anuncios Personalizables</h4>
+                    <p>Crea anuncios con precios, descripciones e imágenes completamente personalizables.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h4>Estadísticas Avanzadas</h4>
+                    <p>Monitorea el uso del bot con estadísticas detalladas y logs en tiempo real.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Section -->
+    <div class="container" id="login">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="login-section">
+                    <h3 class="text-center text-white mb-4">
+                        <i class="fas fa-lock"></i>
+                        Iniciar Sesión
+                    </h3>
+                    
+                    <div id="alertContainer"></div>
+                    
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="username" class="form-label text-white">Usuario</label>
+                            <input type="text" class="form-control" id="username" placeholder="Ingresa tu usuario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label text-white">Contraseña</label>
+                            <input type="password" class="form-control" id="password" placeholder="Ingresa tu contraseña" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Acceder
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-white-50">
+                            Usuario por defecto: <code>admin</code> | Contraseña: <code>admin123</code>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-white py-4 mt-5">
+        <div class="container">
+            <p>&copy; 2024 Discord Bot Panel. Desarrollado con ❤️</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const alertContainer = document.getElementById('alertContainer');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Guardar token
+                    localStorage.setItem('authToken', data.token);
+                    
+                    // Mostrar éxito
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-custom">
+                            <i class="fas fa-check-circle"></i>
+                            ¡Login exitoso! Redirigiendo al panel...
+                        </div>
+                    `;
+                    
+                    // Redirigir al panel
+                    setTimeout(() => {
+                        window.location.href = '/panel';
+                    }, 1500);
+                } else {
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error de conexión. Intenta nuevamente.
+                    </div>
+                `;
+            }
+        });
+        
+        // Verificar si ya está logueado
+        if (localStorage.getItem('authToken')) {
+            window.location.href = '/panel';
+        }
+    </script>
+</body>
+</html>

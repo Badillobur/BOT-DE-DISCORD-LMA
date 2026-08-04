@@ -1,0 +1,87 @@
+{
+  "token": "TU_TOKEN_AQUI",
+  "clientId": "1534293411967012874",
+  "prefix": "!",
+  "embedColor": "#FFD700",
+  "adminRoles": ["Admin", "Moderador"],
+  "ticketCategory": "TICKETS",
+  "logChannel": "logs",
+  "announcements": {
+    "premium": {
+      "title": "🌟 Premium Access",
+      "description": "**CARACTERÍSTICAS PREMIUM:**\n\n• **Acceso Completo**\n> Todas las funciones disponibles\n> Soporte prioritario 24/7\n> Actualizaciones exclusivas\n\n• **Beneficios Adicionales**\n> Sin límites de uso\n> Configuraciones avanzadas\n> Soporte técnico especializado\n\n• **Planes Disponibles**\n> Elige el que mejor se adapte a ti",
+      "image": "https://via.placeholder.com/500x300/FFD700/000000?text=Premium+Access",
+      "color": "#FFD700",
+      "options": [
+        {
+          "label": "Plan Básico - $15",
+          "description": "Duración: 7 días",
+          "emoji": "⭐",
+          "value": "plan_basico"
+        },
+        {
+          "label": "Plan Premium - $35",
+          "description": "Duración: 30 días",
+          "emoji": "✨",
+          "value": "plan_premium"
+        },
+        {
+          "label": "Plan Elite - $90",
+          "description": "Duración: 90 días",
+          "emoji": "👑",
+          "value": "plan_elite"
+        }
+      ]
+    },
+    "servicios": {
+      "title": "🛠️ Servicios Profesionales",
+      "description": "**¿Necesitas algo personalizado?**\n\nOfrecemos servicios profesionales para tus necesidades:\n\n🔧 **Desarrollo a medida**\n📋 **Configuraciones específicas**\n🎨 **Diseños únicos**\n💡 **Consultoría especializada**\n\n¡Contáctanos y cuéntanos qué necesitas!",
+      "color": "#FFA500",
+      "options": [
+        {
+          "label": "Consulta Inicial - Gratis",
+          "description": "Evaluación y presupuesto",
+          "emoji": "💬",
+          "value": "consulta_inicial"
+        },
+        {
+          "label": "Proyecto Pequeño - $50",
+          "description": "Trabajos simples",
+          "emoji": "🛠️",
+          "value": "proyecto_pequeno"
+        },
+        {
+          "label": "Proyecto Completo - $200+",
+          "description": "Desarrollos complejos",
+          "emoji": "🏗️",
+          "value": "proyecto_completo"
+        }
+      ]
+    },
+    "vip": {
+      "title": "👑 VIP Membership",
+      "description": "**¡Únete al exclusivo club VIP!**\n\n🎮 **Beneficios VIP:**\n> Acceso prioritario\n> Contenido exclusivo\n> Soporte premium\n> Funciones especiales\n\n💎 **Niveles disponibles:**",
+      "color": "#FFFF00",
+      "options": [
+        {
+          "label": "VIP Bronce - $25",
+          "description": "Duración: 15 días",
+          "emoji": "🥉",
+          "value": "vip_bronce"
+        },
+        {
+          "label": "VIP Plata - $60",
+          "description": "Duración: 45 días",
+          "emoji": "🥈",
+          "value": "vip_plata"
+        },
+        {
+          "label": "VIP Oro - $150",
+          "description": "Duración: 120 días",
+          "emoji": "🥇",
+          "value": "vip_oro"
+        }
+      ]
+    }
+  }
+}
