@@ -1,394 +1,452 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root { --gold: #FFD700; --dark: #2C3E50; --sidebar: 260px; }
-        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
-        .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: var(--sidebar); background: linear-gradient(180deg, #1a252f, #2c3e50); z-index: 999; }
-        .sidebar-logo { padding: 25px 20px; border-bottom: 1px solid rgba(255,215,0,0.2); color: var(--gold); font-size: 1.2rem; font-weight: bold; }
-        .nav-link { color: #bdc3c7 !important; padding: 14px 20px !important; border-left: 3px solid transparent; transition: all .2s; }
-        .nav-link:hover, .nav-link.active { color: var(--gold) !important; background: rgba(255,215,0,0.08); border-left-color: var(--gold); }
-        .main { margin-left: var(--sidebar); padding: 30px; }
-        .topbar { background: white; padding: 15px 25px; margin: -30px -30px 30px -30px; box-shadow: 0 2px 8px rgba(0,0,0,.06); display: flex; justify-content: space-between; align-items: center; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; }
-        .card-header { background: linear-gradient(135deg, var(--gold), #FFA500); color: #1a252f; font-weight: bold; border-radius: 12px 12px 0 0 !important; padding: 15px 20px; }
-        .btn-gold { background: linear-gradient(135deg, var(--gold), #FFA500); border: none; color: #1a252f; font-weight: bold; }
-        .btn-gold:hover { opacity: .9; color: #1a252f; }
-        .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-        .stat-num { font-size: 2rem; font-weight: bold; color: var(--gold); }
-        .section { display: none; }
-        .section.active { display: block; }
-        .announce-item { background: white; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.06); display: flex; justify-content: space-between; align-items: center; }
-        .announce-item h6 { margin: 0; font-weight: bold; }
-        .announce-item small { color: #7f8c8d; }
-        .color-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Control</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root{--gold:#FFD700;--dark:#1a252f;--sidebar:250px}
+body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;margin:0}
+.sidebar{position:fixed;top:0;left:0;height:100vh;width:var(--sidebar);background:linear-gradient(180deg,#1a252f,#2c3e50);z-index:100;overflow-y:auto}
+.logo{padding:22px 18px;color:var(--gold);font-size:1.1rem;font-weight:bold;border-bottom:1px solid rgba(255,215,0,.15)}
+.nav-link{color:#bdc3c7!important;padding:13px 18px!important;border-left:3px solid transparent;display:block;text-decoration:none;transition:.2s}
+.nav-link:hover,.nav-link.active{color:var(--gold)!important;background:rgba(255,215,0,.07);border-left-color:var(--gold)}
+.main{margin-left:var(--sidebar);padding:25px}
+.topbar{background:#fff;padding:14px 22px;margin:-25px -25px 25px;box-shadow:0 1px 6px rgba(0,0,0,.08);display:flex;justify-content:space-between;align-items:center}
+.card{border:none;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:20px}
+.card-header{background:linear-gradient(135deg,var(--gold),#ffa500);color:#1a252f;font-weight:bold;border-radius:12px 12px 0 0!important;padding:14px 18px}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#ffa500);border:none;color:#1a252f;font-weight:bold}
+.btn-gold:hover,.btn-gold:focus{background:linear-gradient(135deg,#ffc200,#e69500);color:#1a252f}
+.stat{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.07);text-align:center}
+.stat-n{font-size:2.2rem;font-weight:bold;color:var(--gold)}
+.sec{display:none}.sec.active{display:block}
+.a-item{background:#fff;border-radius:10px;padding:14px 18px;margin-bottom:10px;box-shadow:0 1px 5px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;flex-shrink:0}
+.opt-row{background:#f8f9fa;border-radius:8px;padding:10px;margin-bottom:8px}
+.modal-header-gold{background:var(--gold)!important}
+</style>
 </head>
 <body>
+
 <div class="sidebar">
-    <div class="sidebar-logo"><i class="fas fa-robot me-2"></i>Bot Panel</div>
-    <nav class="mt-2">
-        <a href="#" class="nav-link active" data-sec="dashboard"><i class="fas fa-chart-bar me-2"></i>Dashboard</a>
-        <a href="#" class="nav-link" data-sec="announcements"><i class="fas fa-bullhorn me-2"></i>Anuncios</a>
-        <a href="#" class="nav-link" data-sec="config"><i class="fas fa-cog me-2"></i>Configuración</a>
-        <a href="#" class="nav-link" data-sec="logs"><i class="fas fa-list me-2"></i>Logs</a>
-        <a href="#" class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Salir</a>
-    </nav>
+  <div class="logo"><i class="fas fa-robot me-2"></i>Bot Panel</div>
+  <nav id="sideNav">
+    <a href="#" class="nav-link active" data-sec="dashboard"><i class="fas fa-chart-bar me-2"></i>Dashboard</a>
+    <a href="#" class="nav-link" data-sec="announcements"><i class="fas fa-bullhorn me-2"></i>Anuncios</a>
+    <a href="#" class="nav-link" data-sec="config"><i class="fas fa-cog me-2"></i>Configuración</a>
+    <a href="#" class="nav-link" data-sec="logs"><i class="fas fa-list me-2"></i>Logs</a>
+    <a href="#" class="nav-link" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Salir</a>
+  </nav>
 </div>
 
 <div class="main">
-    <div class="topbar">
-        <h5 class="mb-0 fw-bold" id="pageTitle">Dashboard</h5>
-        <span class="text-muted small">Bienvenido, Admin</span>
-    </div>
+  <div class="topbar">
+    <h5 class="mb-0 fw-bold" id="pageTitle">Dashboard</h5>
+    <span class="text-muted small">Admin</span>
+  </div>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard" class="section active">
-        <div class="row g-3 mb-4">
-            <div class="col-md-3"><div class="stat-card text-center"><div class="stat-num" id="s-total">0</div><div class="text-muted">Total Tickets</div></div></div>
-            <div class="col-md-3"><div class="stat-card text-center"><div class="stat-num" id="s-active" style="color:#27ae60">0</div><div class="text-muted">Activos</div></div></div>
-            <div class="col-md-3"><div class="stat-card text-center"><div class="stat-num" id="s-closed" style="color:#e74c3c">0</div><div class="text-muted">Cerrados</div></div></div>
-            <div class="col-md-3"><div class="stat-card text-center"><div class="stat-num" id="s-users" style="color:#3498db">0</div><div class="text-muted">Usuarios</div></div></div>
+  <!-- DASHBOARD -->
+  <div id="sec-dashboard" class="sec active">
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3"><div class="stat"><div class="stat-n" id="s-total">0</div><div class="text-muted small">Total Tickets</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat"><div class="stat-n" id="s-active" style="color:#27ae60">0</div><div class="text-muted small">Activos</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat"><div class="stat-n" id="s-closed" style="color:#e74c3c">0</div><div class="text-muted small">Cerrados</div></div></div>
+      <div class="col-6 col-md-3"><div class="stat"><div class="stat-n" id="s-users" style="color:#3498db">0</div><div class="text-muted small">Usuarios</div></div></div>
+    </div>
+    <div class="card"><div class="card-header"><i class="fas fa-history me-2"></i>Actividad Reciente</div><div class="card-body" id="recent-logs">Cargando...</div></div>
+  </div>
+
+  <!-- ANUNCIOS -->
+  <div id="sec-announcements" class="sec">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="mb-0 text-muted">Gestiona tus anuncios y envíalos a Discord</h6>
+      <button class="btn btn-gold" id="btnNewAnnouncement"><i class="fas fa-plus me-2"></i>Nuevo Anuncio</button>
+    </div>
+    <div id="announcements-list"><div class="text-center py-5 text-muted"><i class="fas fa-bullhorn fa-3x d-block mb-3" style="color:#ddd"></i>No hay anuncios. Crea el primero.</div></div>
+  </div>
+
+  <!-- CONFIG -->
+  <div id="sec-config" class="sec">
+    <div class="card"><div class="card-header"><i class="fas fa-sliders-h me-2"></i>Configuración General</div>
+    <div class="card-body">
+      <form id="configForm">
+        <div class="row">
+          <div class="col-md-4 mb-3"><label class="form-label fw-bold">Prefijo</label><input type="text" class="form-control" id="cfg-prefix" placeholder="!"></div>
+          <div class="col-md-4 mb-3"><label class="form-label fw-bold">Color</label><input type="color" class="form-control form-control-color w-100" id="cfg-color" value="#FFD700"></div>
+          <div class="col-md-4 mb-3"><label class="form-label fw-bold">Categoría Tickets</label><input type="text" class="form-control" id="cfg-cat" placeholder="TICKETS"></div>
+          <div class="col-md-6 mb-3"><label class="form-label fw-bold">Canal Logs</label><input type="text" class="form-control" id="cfg-log" placeholder="logs"></div>
+          <div class="col-md-6 mb-3"><label class="form-label fw-bold">Roles Admin (comas)</label><input type="text" class="form-control" id="cfg-roles" placeholder="Admin, Moderador"></div>
         </div>
-        <div class="card"><div class="card-header"><i class="fas fa-history me-2"></i>Actividad Reciente</div><div class="card-body" id="recent-logs"><div class="text-center text-muted py-4">Cargando...</div></div></div>
-    </div>
+        <button type="submit" class="btn btn-gold"><i class="fas fa-save me-2"></i>Guardar</button>
+      </form>
+    </div></div>
+  </div>
 
-    <!-- ANUNCIOS -->
-    <div id="announcements" class="section">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <div></div>
-            <button class="btn btn-gold" onclick="openCreateModal()"><i class="fas fa-plus me-2"></i>Nuevo Anuncio</button>
-        </div>
-        <div id="announcements-list"><div class="text-center text-muted py-5"><i class="fas fa-bullhorn fa-3x mb-3 d-block" style="color:#ddd"></i>No hay anuncios aún. Crea el primero.</div></div>
-    </div>
-
-    <!-- CONFIG -->
-    <div id="config" class="section">
-        <div class="card"><div class="card-header"><i class="fas fa-sliders-h me-2"></i>Configuración General</div>
-        <div class="card-body">
-            <form id="configForm">
-                <div class="row">
-                    <div class="col-md-4 mb-3"><label class="form-label fw-bold">Prefijo</label><input type="text" class="form-control" id="cfg-prefix" placeholder="!"></div>
-                    <div class="col-md-4 mb-3"><label class="form-label fw-bold">Color de Embeds</label><input type="color" class="form-control form-control-color w-100" id="cfg-color" value="#FFD700"></div>
-                    <div class="col-md-4 mb-3"><label class="form-label fw-bold">Categoría de Tickets</label><input type="text" class="form-control" id="cfg-category" placeholder="TICKETS"></div>
-                    <div class="col-md-6 mb-3"><label class="form-label fw-bold">Canal de Logs</label><input type="text" class="form-control" id="cfg-logchannel" placeholder="logs"></div>
-                    <div class="col-md-6 mb-3"><label class="form-label fw-bold">Roles Admin (separados por coma)</label><input type="text" class="form-control" id="cfg-roles" placeholder="Admin, Moderador"></div>
-                </div>
-                <button type="submit" class="btn btn-gold"><i class="fas fa-save me-2"></i>Guardar</button>
-            </form>
-        </div></div>
-    </div>
-
-    <!-- LOGS -->
-    <div id="logs" class="section">
-        <div class="card"><div class="card-header d-flex justify-content-between align-items-center"><span><i class="fas fa-list me-2"></i>Logs del Sistema</span>
-            <button class="btn btn-sm btn-light" onclick="loadLogs()"><i class="fas fa-sync"></i></button>
-        </div><div class="card-body" id="logs-list"><div class="text-center text-muted py-4">Cargando...</div></div></div>
-    </div>
+  <!-- LOGS -->
+  <div id="sec-logs" class="sec">
+    <div class="card"><div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="fas fa-list me-2"></i>Logs del Sistema</span>
+      <button class="btn btn-sm btn-light" id="btnRefreshLogs"><i class="fas fa-sync"></i></button>
+    </div><div class="card-body" id="logs-list">Cargando...</div></div>
+  </div>
 </div>
 
-<!-- MODAL CREAR/EDITAR ANUNCIO -->
+<!-- MODAL ANUNCIO -->
 <div class="modal fade" id="announcementModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header" style="background: var(--gold);">
-                <h5 class="modal-title fw-bold" id="modalTitle">Nuevo Anuncio</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header modal-header-gold">
+        <h5 class="modal-title fw-bold" id="modalTitle">Nuevo Anuncio</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label fw-bold">ID del Anuncio <small class="text-muted fw-normal">(sin espacios, ej: mi-producto)</small></label>
+              <input type="text" class="form-control" id="a-id" placeholder="mi-producto">
             </div>
-            <div class="modal-body">
-                <input type="hidden" id="edit-id">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3"><label class="form-label fw-bold">ID del Anuncio <small class="text-muted">(sin espacios)</small></label>
-                            <input type="text" class="form-control" id="a-id" placeholder="mi-producto"></div>
-                        <div class="mb-3"><label class="form-label fw-bold">Título</label>
-                            <input type="text" class="form-control" id="a-title" placeholder="Nombre de tu producto o servicio"></div>
-                        <div class="mb-3"><label class="form-label fw-bold">Descripción</label>
-                            <textarea class="form-control" id="a-desc" rows="5" placeholder="Describe tu producto... puedes usar **negrita**, > citas, etc."></textarea></div>
-                        <div class="row">
-                            <div class="col-6 mb-3"><label class="form-label fw-bold">Color</label>
-                                <input type="color" class="form-control form-control-color w-100" id="a-color" value="#FFD700"></div>
-                            <div class="col-6 mb-3"><label class="form-label fw-bold">URL Imagen <small class="text-muted">(opcional)</small></label>
-                                <input type="url" class="form-control" id="a-image" placeholder="https://..."></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="form-label fw-bold mb-0">Opciones de Ticket</label>
-                            <button type="button" class="btn btn-sm btn-gold" onclick="addOption()"><i class="fas fa-plus"></i> Añadir</button>
-                        </div>
-                        <div id="options-container"></div>
-                    </div>
-                </div>
+            <div class="mb-3"><label class="form-label fw-bold">Título</label><input type="text" class="form-control" id="a-title" placeholder="Nombre del producto o servicio"></div>
+            <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea class="form-control" id="a-desc" rows="5" placeholder="Describe tu producto..."></textarea></div>
+            <div class="row">
+              <div class="col-6 mb-3"><label class="form-label fw-bold">Color</label><input type="color" class="form-control form-control-color w-100" id="a-color" value="#FFD700"></div>
+              <div class="col-6 mb-3"><label class="form-label fw-bold">URL Imagen <small class="text-muted fw-normal">(opcional)</small></label><input type="url" class="form-control" id="a-image" placeholder="https://..."></div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button class="btn btn-gold" onclick="saveAnnouncement()"><i class="fas fa-save me-2"></i>Guardar Anuncio</button>
+          </div>
+          <div class="col-md-6">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label fw-bold mb-0">Opciones de Ticket</label>
+              <button type="button" class="btn btn-sm btn-gold" id="btnAddOption"><i class="fas fa-plus me-1"></i>Añadir opción</button>
             </div>
+            <div id="options-container"></div>
+            <small class="text-muted">Cada opción = una elección en el menú desplegable de Discord</small>
+          </div>
         </div>
+        <div id="modal-error" class="alert alert-danger mt-3" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-gold" id="btnSaveAnnouncement"><i class="fas fa-save me-2"></i>Guardar</button>
+      </div>
     </div>
+  </div>
 </div>
 
-<!-- MODAL ENVIAR ANUNCIO -->
+<!-- MODAL ENVIAR -->
 <div class="modal fade" id="sendModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header" style="background: var(--gold);">
-                <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i>Enviar Anuncio a Discord</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="send-announcement-id">
-                <p class="text-muted mb-3">Ingresa el ID del canal de Discord donde quieres enviar el anuncio.</p>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">ID del Canal de Discord</label>
-                    <input type="text" class="form-control form-control-lg" id="send-channel-id" placeholder="Ej: 1234567890123456789">
-                    <small class="text-muted">Para obtener el ID: click derecho en el canal → Copiar ID (activa modo desarrollador en Discord)</small>
-                </div>
-                <div id="send-result"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button class="btn btn-gold" onclick="sendAnnouncement()"><i class="fas fa-paper-plane me-2"></i>Enviar</button>
-            </div>
-        </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header modal-header-gold">
+        <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i>Enviar a Discord</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="send-id">
+        <p class="text-muted">Ingresa el ID del canal de Discord donde quieres enviar el anuncio con el menú de tickets.</p>
+        <label class="form-label fw-bold">ID del Canal</label>
+        <input type="text" class="form-control form-control-lg mb-2" id="send-channel" placeholder="Ej: 1234567890123456789">
+        <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Discord → Ajustes → Avanzado → Modo Desarrollador → Click derecho en canal → Copiar ID</small>
+        <div id="send-result" class="mt-3"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-gold" id="btnSendConfirm"><i class="fas fa-paper-plane me-2"></i>Enviar</button>
+      </div>
     </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
 const token = localStorage.getItem('authToken');
-if (!token) window.location.href = '/';
-const H = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
-let announcements = {};
+if (!token) { window.location.href = '/'; }
+const H = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+let allAnnouncements = {};
+let announcementModal, sendModal;
 
-// Navegación
-document.querySelectorAll('[data-sec]').forEach(a => {
-    a.addEventListener('click', e => {
-        e.preventDefault();
-        const sec = a.dataset.sec;
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('[data-sec]').forEach(l => l.classList.remove('active'));
-        document.getElementById(sec).classList.add('active');
-        a.classList.add('active');
-        document.getElementById('pageTitle').textContent = a.textContent.trim();
-        if (sec === 'dashboard') loadDashboard();
-        if (sec === 'announcements') loadAnnouncements();
-        if (sec === 'config') loadConfig();
-        if (sec === 'logs') loadLogs();
-    });
-});
+document.addEventListener('DOMContentLoaded', function() {
+  announcementModal = new bootstrap.Modal(document.getElementById('announcementModal'));
+  sendModal = new bootstrap.Modal(document.getElementById('sendModal'));
 
-// Dashboard
-async function loadDashboard() {
-    const r = await fetch('/api/stats', { headers: H });
-    const s = await r.json();
-    document.getElementById('s-total').textContent = s.totalTickets || 0;
-    document.getElementById('s-active').textContent = s.activeTickets || 0;
-    document.getElementById('s-closed').textContent = s.closedTickets || 0;
-    document.getElementById('s-users').textContent = s.totalUsers || 0;
-    const lr = await fetch('/api/logs?days=1', { headers: H });
-    const logs = await lr.json();
-    const el = document.getElementById('recent-logs');
-    if (!logs.length) { el.innerHTML = '<p class="text-muted text-center py-3">Sin actividad reciente</p>'; return; }
-    el.innerHTML = logs.slice(0,8).map(l => `
-        <div class="d-flex justify-content-between border-bottom py-2">
-            <div><span class="badge bg-secondary me-2">${l.type}</span>${l.message}</div>
-            <small class="text-muted">${new Date(l.timestamp).toLocaleTimeString()}</small>
-        </div>`).join('');
-}
-
-// Anuncios
-async function loadAnnouncements() {
-    const r = await fetch('/api/announcements', { headers: H });
-    announcements = await r.json();
-    const el = document.getElementById('announcements-list');
-    const keys = Object.keys(announcements);
-    if (!keys.length) {
-        el.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-bullhorn fa-3x mb-3 d-block" style="color:#ddd"></i>No hay anuncios aún. Crea el primero.</div>';
-        return;
-    }
-    el.innerHTML = keys.map(id => {
-        const a = announcements[id];
-        return `<div class="announce-item">
-            <div class="d-flex align-items-center">
-                <span class="color-dot" style="background:${a.color || '#FFD700'}"></span>
-                <div>
-                    <h6>${a.title}</h6>
-                    <small>ID: <code>${id}</code> · ${a.options ? a.options.length : 0} opciones</small>
-                </div>
-            </div>
-            <div class="d-flex gap-2">
-                <button class="btn btn-sm btn-gold" onclick="openSendModal('${id}')"><i class="fas fa-paper-plane me-1"></i>Enviar</button>
-                <button class="btn btn-sm btn-outline-primary" onclick="openEditModal('${id}')"><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteAnnouncement('${id}')"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>`;
-    }).join('');
-}
-
-// Crear modal
-function openCreateModal() {
-    document.getElementById('modalTitle').textContent = 'Nuevo Anuncio';
-    document.getElementById('edit-id').value = '';
-    document.getElementById('a-id').value = '';
-    document.getElementById('a-id').disabled = false;
-    document.getElementById('a-title').value = '';
-    document.getElementById('a-desc').value = '';
-    document.getElementById('a-color').value = '#FFD700';
-    document.getElementById('a-image').value = '';
-    document.getElementById('options-container').innerHTML = '';
-    addOption();
-    new bootstrap.Modal(document.getElementById('announcementModal')).show();
-}
-
-// Editar modal
-function openEditModal(id) {
-    const a = announcements[id];
-    document.getElementById('modalTitle').textContent = 'Editar Anuncio';
-    document.getElementById('edit-id').value = id;
-    document.getElementById('a-id').value = id;
-    document.getElementById('a-id').disabled = true;
-    document.getElementById('a-title').value = a.title;
-    document.getElementById('a-desc').value = a.description;
-    document.getElementById('a-color').value = a.color || '#FFD700';
-    document.getElementById('a-image').value = a.image || '';
-    document.getElementById('options-container').innerHTML = '';
-    (a.options || []).forEach(o => addOption(o));
-    new bootstrap.Modal(document.getElementById('announcementModal')).show();
-}
-
-// Añadir opción
-function addOption(data = {}) {
-    const div = document.createElement('div');
-    div.className = 'border rounded p-2 mb-2 option-row';
-    div.innerHTML = `
-        <div class="row g-2 align-items-center">
-            <div class="col-5"><input type="text" class="form-control form-control-sm opt-label" placeholder="Ej: Plan Premium - $35" value="${data.label || ''}"></div>
-            <div class="col-4"><input type="text" class="form-control form-control-sm opt-desc" placeholder="Ej: 30 días" value="${data.description || ''}"></div>
-            <div class="col-2"><input type="text" class="form-control form-control-sm opt-emoji" placeholder="💎" value="${data.emoji || ''}"></div>
-            <div class="col-1"><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.option-row').remove()"><i class="fas fa-times"></i></button></div>
-        </div>`;
-    document.getElementById('options-container').appendChild(div);
-}
-
-// Guardar anuncio
-async function saveAnnouncement() {
-    const editId = document.getElementById('edit-id').value;
-    const id = editId || document.getElementById('a-id').value.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_-]/g,'');
-    const title = document.getElementById('a-title').value.trim();
-    const description = document.getElementById('a-desc').value.trim();
-    if (!id || !title || !description) { alert('ID, título y descripción son obligatorios'); return; }
-    const options = [];
-    document.querySelectorAll('.option-row').forEach(row => {
-        const label = row.querySelector('.opt-label').value.trim();
-        const desc = row.querySelector('.opt-desc').value.trim();
-        const emoji = row.querySelector('.opt-emoji').value.trim();
-        if (label && desc) options.push({ label, description: desc, value: label.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,100), emoji: emoji || undefined });
-    });
-    const announcement = { title, description, color: document.getElementById('a-color').value, options };
-    const img = document.getElementById('a-image').value.trim();
-    if (img) announcement.image = img;
-    let res;
-    if (editId) {
-        res = await fetch(`/api/announcements/${editId}`, { method: 'PUT', headers: H, body: JSON.stringify(announcement) });
-    } else {
-        res = await fetch('/api/announcements', { method: 'POST', headers: H, body: JSON.stringify({ id, announcement }) });
-    }
-    const data = await res.json();
-    if (res.ok) { bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide(); toast('success', data.message); loadAnnouncements(); }
-    else toast('danger', data.error);
-}
-
-// Eliminar anuncio
-async function deleteAnnouncement(id) {
-    if (!confirm(`¿Eliminar el anuncio "${id}"?`)) return;
-    const res = await fetch(`/api/announcements/${id}`, { method: 'DELETE', headers: H });
-    const data = await res.json();
-    if (res.ok) { toast('success', data.message); loadAnnouncements(); }
-    else toast('danger', data.error);
-}
-
-// Modal enviar
-function openSendModal(id) {
-    document.getElementById('send-announcement-id').value = id;
-    document.getElementById('send-channel-id').value = '';
-    document.getElementById('send-result').innerHTML = '';
-    new bootstrap.Modal(document.getElementById('sendModal')).show();
-}
-
-// Enviar anuncio a Discord
-async function sendAnnouncement() {
-    const id = document.getElementById('send-announcement-id').value;
-    const channelId = document.getElementById('send-channel-id').value.trim();
-    const resEl = document.getElementById('send-result');
-    if (!channelId) { resEl.innerHTML = '<div class="alert alert-warning">Ingresa el ID del canal</div>'; return; }
-    resEl.innerHTML = '<div class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Enviando...</div>';
-    const res = await fetch(`/api/announcements/${id}/send`, { method: 'POST', headers: H, body: JSON.stringify({ channelId }) });
-    const data = await res.json();
-    if (res.ok) {
-        resEl.innerHTML = `<div class="alert alert-success"><i class="fas fa-check me-2"></i>${data.message}</div>`;
-        setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('sendModal')).hide(), 1500);
-    } else {
-        resEl.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times me-2"></i>${data.error}</div>`;
-    }
-}
-
-// Config
-async function loadConfig() {
-    const r = await fetch('/api/config/global', { headers: H });
-    const c = await r.json();
-    document.getElementById('cfg-prefix').value = c.prefix || '!';
-    document.getElementById('cfg-color').value = c.embedColor || '#FFD700';
-    document.getElementById('cfg-category').value = c.ticketCategory || 'TICKETS';
-    document.getElementById('cfg-logchannel').value = c.logChannel || 'logs';
-    document.getElementById('cfg-roles').value = (c.adminRoles || []).join(', ');
-}
-document.getElementById('configForm').addEventListener('submit', async e => {
+  // Navegación
+  document.getElementById('sideNav').addEventListener('click', function(e) {
+    const link = e.target.closest('[data-sec]');
+    if (!link) return;
     e.preventDefault();
-    const config = {
-        prefix: document.getElementById('cfg-prefix').value,
-        embedColor: document.getElementById('cfg-color').value,
-        ticketCategory: document.getElementById('cfg-category').value,
-        logChannel: document.getElementById('cfg-logchannel').value,
-        adminRoles: document.getElementById('cfg-roles').value.split(',').map(r => r.trim()).filter(Boolean)
-    };
-    const res = await fetch('/api/config/global', { method: 'PUT', headers: H, body: JSON.stringify(config) });
-    const data = await res.json();
-    toast(res.ok ? 'success' : 'danger', data.message || data.error);
+    const sec = link.dataset.sec;
+    document.querySelectorAll('.sec').forEach(function(s) { s.classList.remove('active'); });
+    document.querySelectorAll('[data-sec]').forEach(function(l) { l.classList.remove('active'); });
+    document.getElementById('sec-' + sec).classList.add('active');
+    link.classList.add('active');
+    document.getElementById('pageTitle').textContent = link.textContent.trim();
+    if (sec === 'dashboard') loadDashboard();
+    if (sec === 'announcements') loadAnnouncements();
+    if (sec === 'config') loadConfig();
+    if (sec === 'logs') loadLogs();
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    localStorage.removeItem('authToken');
+    window.location.href = '/';
+  });
+
+  document.getElementById('btnNewAnnouncement').addEventListener('click', function() {
+    openCreateModal();
+  });
+
+  document.getElementById('btnAddOption').addEventListener('click', function() {
+    addOption({});
+  });
+
+  document.getElementById('btnSaveAnnouncement').addEventListener('click', function() {
+    saveAnnouncement();
+  });
+
+  document.getElementById('btnSendConfirm').addEventListener('click', function() {
+    sendAnnouncement();
+  });
+
+  document.getElementById('btnRefreshLogs').addEventListener('click', function() {
+    loadLogs();
+  });
+
+  document.getElementById('configForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    saveConfig();
+  });
+
+  loadDashboard();
 });
 
-// Logs
+async function api(url, opts) {
+  try {
+    const res = await fetch(url, Object.assign({ headers: H }, opts));
+    if (res.status === 401 || res.status === 403) {
+      localStorage.removeItem('authToken');
+      window.location.href = '/';
+      return null;
+    }
+    return res;
+  } catch(e) {
+    toast('danger', 'Error de conexión: ' + e.message);
+    return null;
+  }
+}
+
+async function loadDashboard() {
+  const r = await api('/api/stats');
+  if (!r) return;
+  const s = await r.json();
+  document.getElementById('s-total').textContent = s.totalTickets || 0;
+  document.getElementById('s-active').textContent = s.activeTickets || 0;
+  document.getElementById('s-closed').textContent = s.closedTickets || 0;
+  document.getElementById('s-users').textContent = s.totalUsers || 0;
+  const lr = await api('/api/logs?days=1');
+  if (!lr) return;
+  const logs = await lr.json();
+  const el = document.getElementById('recent-logs');
+  if (!logs.length) { el.innerHTML = '<p class="text-muted text-center py-3">Sin actividad reciente</p>'; return; }
+  el.innerHTML = logs.slice(0,8).map(function(l) {
+    return '<div class="d-flex justify-content-between border-bottom py-2"><div><span class="badge bg-secondary me-2">' + l.type + '</span>' + l.message + '</div><small class="text-muted">' + new Date(l.timestamp).toLocaleTimeString() + '</small></div>';
+  }).join('');
+}
+
+async function loadAnnouncements() {
+  const r = await api('/api/announcements');
+  if (!r) return;
+  allAnnouncements = await r.json();
+  const el = document.getElementById('announcements-list');
+  const keys = Object.keys(allAnnouncements);
+  if (!keys.length) {
+    el.innerHTML = '<div class="text-center py-5 text-muted"><i class="fas fa-bullhorn fa-3x d-block mb-3" style="color:#ddd"></i>No hay anuncios. Crea el primero.</div>';
+    return;
+  }
+  el.innerHTML = keys.map(function(id) {
+    const a = allAnnouncements[id];
+    return '<div class="a-item"><div class="d-flex align-items-center"><span class="dot" style="background:' + (a.color||'#FFD700') + '"></span><div><strong>' + a.title + '</strong><br><small class="text-muted">ID: <code>' + id + '</code> &bull; ' + (a.options ? a.options.length : 0) + ' opciones</small></div></div><div class="d-flex gap-2"><button class="btn btn-sm btn-gold btn-send-ann" data-id="' + id + '"><i class="fas fa-paper-plane me-1"></i>Enviar</button><button class="btn btn-sm btn-outline-primary btn-edit-ann" data-id="' + id + '"><i class="fas fa-edit"></i></button><button class="btn btn-sm btn-outline-danger btn-del-ann" data-id="' + id + '"><i class="fas fa-trash"></i></button></div></div>';
+  }).join('');
+
+  document.getElementById('announcements-list').addEventListener('click', function(e) {
+    const sendBtn = e.target.closest('.btn-send-ann');
+    const editBtn = e.target.closest('.btn-edit-ann');
+    const delBtn = e.target.closest('.btn-del-ann');
+    if (sendBtn) openSendModal(sendBtn.dataset.id);
+    if (editBtn) openEditModal(editBtn.dataset.id);
+    if (delBtn) deleteAnnouncement(delBtn.dataset.id);
+  }, { once: true });
+}
+
+function openCreateModal() {
+  document.getElementById('modalTitle').textContent = 'Nuevo Anuncio';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('a-id').value = '';
+  document.getElementById('a-id').disabled = false;
+  document.getElementById('a-title').value = '';
+  document.getElementById('a-desc').value = '';
+  document.getElementById('a-color').value = '#FFD700';
+  document.getElementById('a-image').value = '';
+  document.getElementById('options-container').innerHTML = '';
+  document.getElementById('modal-error').style.display = 'none';
+  addOption({});
+  announcementModal.show();
+}
+
+function openEditModal(id) {
+  const a = allAnnouncements[id];
+  document.getElementById('modalTitle').textContent = 'Editar Anuncio';
+  document.getElementById('edit-id').value = id;
+  document.getElementById('a-id').value = id;
+  document.getElementById('a-id').disabled = true;
+  document.getElementById('a-title').value = a.title;
+  document.getElementById('a-desc').value = a.description;
+  document.getElementById('a-color').value = a.color || '#FFD700';
+  document.getElementById('a-image').value = a.image || '';
+  document.getElementById('options-container').innerHTML = '';
+  document.getElementById('modal-error').style.display = 'none';
+  (a.options || []).forEach(function(o) { addOption(o); });
+  announcementModal.show();
+}
+
+function addOption(data) {
+  const d = data || {};
+  const div = document.createElement('div');
+  div.className = 'opt-row';
+  div.innerHTML = '<div class="row g-2 align-items-center"><div class="col-5"><input type="text" class="form-control form-control-sm opt-label" placeholder="Plan Premium - $35" value="' + (d.label||'') + '"></div><div class="col-4"><input type="text" class="form-control form-control-sm opt-desc" placeholder="30 días" value="' + (d.description||'') + '"></div><div class="col-2"><input type="text" class="form-control form-control-sm opt-emoji" placeholder="💎" value="' + (d.emoji||'') + '"></div><div class="col-1"><button type="button" class="btn btn-sm btn-outline-danger btn-remove-opt"><i class="fas fa-times"></i></button></div></div>';
+  div.querySelector('.btn-remove-opt').addEventListener('click', function() { div.remove(); });
+  document.getElementById('options-container').appendChild(div);
+}
+
+async function saveAnnouncement() {
+  const editId = document.getElementById('edit-id').value;
+  const idRaw = document.getElementById('a-id').value.trim();
+  const id = editId || idRaw.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_-]/g,'');
+  const title = document.getElementById('a-title').value.trim();
+  const desc = document.getElementById('a-desc').value.trim();
+  const errEl = document.getElementById('modal-error');
+
+  function showErr(msg) { errEl.textContent = msg; errEl.style.display = 'block'; }
+
+  if (!id) { showErr('El ID es obligatorio (ej: mi-producto)'); return; }
+  if (!title) { showErr('El título es obligatorio'); return; }
+  if (!desc) { showErr('La descripción es obligatoria'); return; }
+
+  const options = [];
+  document.querySelectorAll('.opt-row').forEach(function(row) {
+    const label = row.querySelector('.opt-label').value.trim();
+    const d = row.querySelector('.opt-desc').value.trim();
+    const emoji = row.querySelector('.opt-emoji').value.trim();
+    if (label && d) {
+      const opt = { label: label, description: d, value: label.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,90) };
+      if (emoji) opt.emoji = emoji;
+      options.push(opt);
+    }
+  });
+
+  if (!options.length) { showErr('Agrega al menos una opción de ticket'); return; }
+
+  errEl.style.display = 'none';
+  const announcement = { title: title, description: desc, color: document.getElementById('a-color').value, options: options };
+  const img = document.getElementById('a-image').value.trim();
+  if (img) announcement.image = img;
+
+  let r;
+  if (editId) {
+    r = await api('/api/announcements/' + editId, { method: 'PUT', body: JSON.stringify(announcement) });
+  } else {
+    r = await api('/api/announcements', { method: 'POST', body: JSON.stringify({ id: id, announcement: announcement }) });
+  }
+  if (!r) return;
+  const data = await r.json();
+  if (r.ok) {
+    announcementModal.hide();
+    toast('success', data.message || 'Guardado');
+    loadAnnouncements();
+  } else {
+    showErr(data.error || 'Error al guardar');
+  }
+}
+
+async function deleteAnnouncement(id) {
+  if (!confirm('¿Eliminar el anuncio "' + id + '"?')) return;
+  const r = await api('/api/announcements/' + id, { method: 'DELETE' });
+  if (!r) return;
+  const data = await r.json();
+  toast(r.ok ? 'success' : 'danger', data.message || data.error);
+  if (r.ok) loadAnnouncements();
+}
+
+function openSendModal(id) {
+  document.getElementById('send-id').value = id;
+  document.getElementById('send-channel').value = '';
+  document.getElementById('send-result').innerHTML = '';
+  sendModal.show();
+}
+
+async function sendAnnouncement() {
+  const id = document.getElementById('send-id').value;
+  const channelId = document.getElementById('send-channel').value.trim();
+  const resEl = document.getElementById('send-result');
+  if (!channelId) { resEl.innerHTML = '<div class="alert alert-warning">Ingresa el ID del canal</div>'; return; }
+  resEl.innerHTML = '<div class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Enviando...</div>';
+  const r = await api('/api/announcements/' + id + '/send', { method: 'POST', body: JSON.stringify({ channelId: channelId }) });
+  if (!r) return;
+  const data = await r.json();
+  if (r.ok) {
+    resEl.innerHTML = '<div class="alert alert-success"><i class="fas fa-check me-2"></i>' + data.message + '</div>';
+    setTimeout(function() { sendModal.hide(); }, 2000);
+  } else {
+    resEl.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times me-2"></i>' + data.error + '</div>';
+  }
+}
+
+async function loadConfig() {
+  const r = await api('/api/config/global');
+  if (!r) return;
+  const c = await r.json();
+  document.getElementById('cfg-prefix').value = c.prefix || '!';
+  document.getElementById('cfg-color').value = c.embedColor || '#FFD700';
+  document.getElementById('cfg-cat').value = c.ticketCategory || 'TICKETS';
+  document.getElementById('cfg-log').value = c.logChannel || 'logs';
+  document.getElementById('cfg-roles').value = (c.adminRoles || []).join(', ');
+}
+
+async function saveConfig() {
+  const config = {
+    prefix: document.getElementById('cfg-prefix').value,
+    embedColor: document.getElementById('cfg-color').value,
+    ticketCategory: document.getElementById('cfg-cat').value,
+    logChannel: document.getElementById('cfg-log').value,
+    adminRoles: document.getElementById('cfg-roles').value.split(',').map(function(r) { return r.trim(); }).filter(Boolean)
+  };
+  const r = await api('/api/config/global', { method: 'PUT', body: JSON.stringify(config) });
+  if (!r) return;
+  const data = await r.json();
+  toast(r.ok ? 'success' : 'danger', data.message || data.error);
+}
+
 async function loadLogs() {
-    const r = await fetch('/api/logs?days=7', { headers: H });
-    const logs = await r.json();
-    const el = document.getElementById('logs-list');
-    if (!logs.length) { el.innerHTML = '<p class="text-muted text-center py-3">Sin logs disponibles</p>'; return; }
-    el.innerHTML = `<table class="table table-sm table-hover">
-        <thead><tr><th>Tipo</th><th>Mensaje</th><th>Fecha</th></tr></thead>
-        <tbody>${logs.map(l => `<tr><td><span class="badge bg-secondary">${l.type}</span></td><td>${l.message}</td><td><small class="text-muted">${new Date(l.timestamp).toLocaleString()}</small></td></tr>`).join('')}</tbody>
-    </table>`;
+  const r = await api('/api/logs?days=7');
+  if (!r) return;
+  const logs = await r.json();
+  const el = document.getElementById('logs-list');
+  if (!logs.length) { el.innerHTML = '<p class="text-muted text-center py-3">Sin logs</p>'; return; }
+  el.innerHTML = '<table class="table table-sm table-hover"><thead><tr><th>Tipo</th><th>Mensaje</th><th>Fecha</th></tr></thead><tbody>' +
+    logs.map(function(l) { return '<tr><td><span class="badge bg-secondary">' + l.type + '</span></td><td>' + l.message + '</td><td><small class="text-muted">' + new Date(l.timestamp).toLocaleString() + '</small></td></tr>'; }).join('') +
+    '</tbody></table>';
 }
 
-// Toast
 function toast(type, msg) {
-    const el = document.createElement('div');
-    el.className = `alert alert-${type} position-fixed shadow`;
-    el.style = 'top:20px;right:20px;z-index:9999;min-width:280px';
-    el.innerHTML = `<i class="fas fa-${type==='success'?'check':'times'}-circle me-2"></i>${msg}`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 4000);
+  const el = document.createElement('div');
+  el.className = 'alert alert-' + type + ' position-fixed shadow';
+  el.style.cssText = 'top:20px;right:20px;z-index:9999;min-width:280px;animation:fadeIn .3s';
+  el.innerHTML = '<i class="fas fa-' + (type==='success'?'check':'exclamation') + '-circle me-2"></i>' + msg;
+  document.body.appendChild(el);
+  setTimeout(function() { if(el.parentNode) el.remove(); }, 4000);
 }
-
-function logout() { localStorage.removeItem('authToken'); window.location.href = '/'; }
-
-// Init
-loadDashboard();
 </script>
 </body>
 </html>
