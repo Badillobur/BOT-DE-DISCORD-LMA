@@ -1,1 +1,20 @@
-{}
+{
+  "1488634509271371776": {
+    "title": "LMAx27 | SUPREME",
+    "description": "**CARACTERÍSTICAS:**\n\n• **Dominio de Combate**\n\n> **Apuntado Inteligente / Precisión Silenciosa / Asistencia de Fijación**\n\n• **Armamento**\n\n> **Cambio Instantáneo / Fuego Rápido / Control de Retroceso**\n\n• **Movimiento y Sigilo**\n\n> **Teletransporte Flash / Aumento de Velocidad / Modo Fantasma**\n\n• **Tácticas**\n\n> **Impacto con Cobertura / Sin Retraso / Protocolo de Asalto Automático**\n\n• **Extra**\n\n> **Visión ESP / Wallhack / Chams Personalizados / Y Más Funciones ...**",
+    "color": "#ffd700",
+    "options": [
+      {
+        "label": "Plan Supreme 20$",
+        "description": "30 Dias",
+        "value": "plan_supreme_20_"
+      },
+      {
+        "label": "Plan Supreme 7$",
+        "description": "7 Dias",
+        "value": "plan_supreme_7_"
+      }
+    ],
+    "image": "https://i.imgur.com/nKyHDy3.jpeg"
+  }
+}
