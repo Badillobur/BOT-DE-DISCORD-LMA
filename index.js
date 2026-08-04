@@ -109,8 +109,9 @@ process.on('SIGINT', async () => {
     process.exit(0);
 });
 
-// Conectar el bot
-client.login(config.token).catch(error => {
+// Conectar el bot - usar variable de entorno primero, luego config.json
+const token = process.env.DISCORD_TOKEN || config.token;
+client.login(token).catch(error => {
     console.error('❌ Error al conectar el bot:'.red, error.message);
     process.exit(1);
 });
