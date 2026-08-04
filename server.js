@@ -1,10 +1,10 @@
 const express = require('express');
+const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 const fs = require('fs-extra');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const ConfigManager = require('./utils/configManager');
