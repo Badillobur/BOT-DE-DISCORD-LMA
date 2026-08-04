@@ -16,14 +16,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
 
 // Middleware
 app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-            imgSrc: ["'self'", "data:", "https:"],
-        },
-    },
+    contentSecurityPolicy: false
 }));
 app.use(cors());
 app.use(express.json());
