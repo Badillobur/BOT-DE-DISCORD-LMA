@@ -1,7 +1,78 @@
 const { ChannelType, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { GuildConfig, Ticket: TicketModel } = require('../db');
 const { readAnnouncements } = require('./githubStorage');
+const fs = require('fs');
+const path = require('path');
 
+// ── Almacenamiento de tickets en memoria + archivo local ──────────────────────
+// En Render, los tickets se pierden al reiniciar, pero los canales de Discord
+// se mantienen. Solo necesitamos persistencia mientras el bot está activo.
+const ticketsMemory = {};
+
+function saveTicket(ticket) {
+    ticketsMemory[ticket.id] = ticket;
+    // Intentar guardar en disco también (fallback)
+    try {
+        const dir = path.join(__dirname, '..', 'data');
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        const p = path.join(dir, 'tickets.json');
+        const existing = fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf-8')) : {};
+        existing[ticket.id] = ticket;
+        fs.writeFileSync(p, JSON.stringify(existing, null, 2));
+    } catch (_) {}
+}
+
+function getTicket(id) {
+    if (ticketsMemory[id]) return ticketsMemory[id];
+    try {
+        const p = path.join(__dirname, '..', 'data', 'tickets.json');
+        if (fs.existsSync(p)) {
+            const all = JSON.parse(fs.readFileSync(p, 'utf-8'));
+            if (all[id]) { ticketsMemory[id] = all[id]; return all[id]; }
+        }
+    } catch (_) {}
+    return null;
+}
+
+function getUserOpenTicket(userId, guildId) {
+    // Revisar memoria
+    for (const t of Object.values(ticketsMemory)) {
+        if (t.userId === userId && t.guildId === guildId && t.status === 'open') return t;
+    }
+    // Revisar archivo
+    try {
+        const p = path.join(__dirname, '..', 'data', 'tickets.json');
+        if (fs.existsSync(p)) {
+            const all = JSON.parse(fs.readFileSync(p, 'utf-8'));
+            for (const t of Object.values(all)) {
+                if (t.userId === userId && t.guildId === guildId && t.status === 'open') {
+                    ticketsMemory[t.id] = t;
+                    return t;
+                }
+            }
+        }
+    } catch (_) {}
+    return null;
+}
+
+function countGuildTickets(guildId) {
+    try {
+        const p = path.join(__dirname, '..', 'data', 'tickets.json');
+        if (fs.existsSync(p)) {
+            const all = JSON.parse(fs.readFileSync(p, 'utf-8'));
+            return Object.values(all).filter(t => t.guildId === guildId).length;
+        }
+    } catch (_) {}
+    return Object.values(ticketsMemory).filter(t => t.guildId === guildId).length;
+}
+
+// ── Config del servidor (en memoria) ─────────────────────────────────────────
+const configCache = {};
+
+function getConfig(guildId) {
+    return configCache[guildId] || { ticketCategory: 'TICKETS', logChannel: 'logs', adminRoles: [] };
+}
+
+// ── TicketHandler ─────────────────────────────────────────────────────────────
 class TicketHandler {
 
     static async handleTicketSelection(interaction, client) {
@@ -11,39 +82,43 @@ class TicketHandler {
             const announcementKey = interaction.customId.replace('ticket_select_', '');
             const selectedValue = interaction.values[0];
 
-            // Buscar anuncio en githubStorage
-            const announcements = await readAnnouncements();
-            const announcement = announcements[announcementKey];
+            // Buscar anuncio (GitHub storage o config.json)
+            let announcement = null;
+            try {
+                const announcements = await readAnnouncements();
+                announcement = announcements[announcementKey];
+            } catch (_) {}
+
+            // Fallback: buscar en config.json local
             if (!announcement) {
-                return await interaction.editReply({ content: '❌ Anuncio no encontrado.' });
+                try {
+                    const cfg = require('../config.json');
+                    announcement = cfg.announcements && cfg.announcements[announcementKey];
+                } catch (_) {}
             }
 
-            const selectedOption = announcement.options.find(opt => opt.value === selectedValue);
+            if (!announcement) {
+                return await interaction.editReply({ content: '❌ Anuncio no encontrado. Vuelve a enviarlo desde el panel.' });
+            }
+
+            const selectedOption = announcement.options && announcement.options.find(opt => opt.value === selectedValue);
             if (!selectedOption) {
                 return await interaction.editReply({ content: '❌ Opción no válida.' });
             }
 
-            // Verificar ticket abierto
-            const existing = await TicketModel.findOne({
-                userId: interaction.user.id,
-                guildId: interaction.guild.id,
-                status: 'open'
-            });
+            // Verificar ticket abierto existente
+            const existing = getUserOpenTicket(interaction.user.id, interaction.guild.id);
             if (existing) {
                 return await interaction.editReply({ content: `Ya tienes un ticket abierto: <#${existing.channelId}>` });
             }
 
-            // Obtener config
-            let config = await GuildConfig.findById(interaction.guild.id)
-                || await GuildConfig.findById('global')
-                || { ticketCategory: 'TICKETS', logChannel: 'logs', adminRoles: [] };
-
+            const config = getConfig(interaction.guild.id);
             const ticket = await this.createTicket(interaction, announcementKey, selectedOption, config);
             await interaction.editReply({ content: `✅ Tu ticket fue creado: <#${ticket.channelId}>` });
 
         } catch (error) {
             console.error('Error creando ticket:', error);
-            try { await interaction.editReply({ content: '❌ Error al crear el ticket.' }); } catch (_) {}
+            try { await interaction.editReply({ content: '❌ Error al crear el ticket. Intenta nuevamente.' }); } catch (_) {}
         }
     }
 
@@ -64,11 +139,10 @@ class TicketHandler {
             });
         }
 
-        // Contar tickets del servidor para número
-        const count = await TicketModel.countDocuments({ guildId: guild.id }) + 1;
+        const count = countGuildTickets(guild.id) + 1;
         const channelName = `ticket-${count}-${user.username.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 15)}`;
 
-        // Permisos del canal
+        // Permisos
         const permissionOverwrites = [
             { id: guild.roles.everyone, deny: [PermissionFlagsBits.ViewChannel] },
             {
@@ -82,9 +156,7 @@ class TicketHandler {
             }
         ];
 
-        // Añadir roles admin
-        const adminRoles = config.adminRoles || [];
-        for (const roleName of adminRoles) {
+        for (const roleName of (config.adminRoles || [])) {
             const role = guild.roles.cache.find(r => r.name === roleName);
             if (role) {
                 permissionOverwrites.push({
@@ -108,10 +180,8 @@ class TicketHandler {
         });
 
         const ticketId = `${guild.id}-${count}`;
-
-        // Guardar en MongoDB
-        await TicketModel.create({
-            _id: ticketId,
+        const ticketData = {
+            id: ticketId,
             channelId: ticketChannel.id,
             userId: user.id,
             guildId: guild.id,
@@ -119,8 +189,10 @@ class TicketHandler {
             type: announcementKey,
             option: selectedOption.label,
             optionValue: selectedOption.value,
-            status: 'open'
-        });
+            status: 'open',
+            createdAt: new Date().toISOString()
+        };
+        saveTicket(ticketData);
 
         // Mensaje bienvenida + botón cerrar
         const embed = new EmbedBuilder()
@@ -156,24 +228,33 @@ class TicketHandler {
             }
         } catch (_) {}
 
-        return { channelId: ticketChannel.id };
+        return ticketData;
     }
 
-    static async canClose(interaction) {
+    // Solo dueño del servidor o roles admin pueden cerrar
+    static canClose(interaction) {
         if (interaction.user.id === interaction.guild.ownerId) return true;
-        let config = await GuildConfig.findById(interaction.guild.id) || await GuildConfig.findById('global');
-        if (config && config.adminRoles) {
+        const config = getConfig(interaction.guild.id);
+        if (config.adminRoles && config.adminRoles.length > 0) {
             return interaction.member.roles.cache.some(r => config.adminRoles.includes(r.name));
         }
         return false;
     }
 
-    static async closeTicket(ticketId, closedBy) {
-        return await TicketModel.findByIdAndUpdate(
-            ticketId,
-            { status: 'closed', closedAt: new Date().toISOString(), closedBy: closedBy.id },
-            { new: true }
-        );
+    static closeTicket(ticketId, closedBy) {
+        const ticket = getTicket(ticketId);
+        if (ticket) {
+            ticket.status = 'closed';
+            ticket.closedAt = new Date().toISOString();
+            ticket.closedBy = closedBy.id;
+            saveTicket(ticket);
+        }
+        return ticket;
+    }
+
+    // Guardar config del servidor
+    static setGuildConfig(guildId, config) {
+        configCache[guildId] = config;
     }
 }
 

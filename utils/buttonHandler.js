@@ -21,7 +21,7 @@ class ButtonHandler {
         const ticketId = interaction.customId.replace('close_ticket_', '');
 
         // Solo el dueño del servidor o roles admin pueden cerrar
-        const canClose = await TicketHandler.canClose(interaction);
+        const canClose = TicketHandler.canClose(interaction);
         if (!canClose) {
             return await interaction.reply({
                 content: '❌ Solo los administradores pueden cerrar tickets.',
