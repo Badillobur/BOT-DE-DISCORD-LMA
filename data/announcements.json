@@ -16,5 +16,23 @@
       }
     ],
     "image": "https://i.imgur.com/nKyHDy3.jpeg"
+  },
+  "1488634344678621385": {
+    "title": "LMAx27 | BASICO",
+    "description": "**CARACTERÍSTICAS:**\n\n• **Dominio de Combate**\n\n> **Aimbot External**\n\n• **Visión y Estilo**\n\n> **Menu Chams**\n\n• **Movimiento y Sigilo**\n\n> **Fix v2.1**\n> **GhostLag**\n> **Fix Lag V2**\n> **Frezze Lag V1, V2**",
+    "color": "#ffd700",
+    "options": [
+      {
+        "label": "Plan Basico 15$",
+        "description": "30 dias",
+        "value": "plan_basico_15_"
+      },
+      {
+        "label": "Plan Basico  5$",
+        "description": "7 dias",
+        "value": "plan_basico__5_"
+      }
+    ],
+    "image": "https://i.imgur.com/m0uHvY7.jpeg"
   }
 }
