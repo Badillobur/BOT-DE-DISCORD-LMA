@@ -1,5 +1,4 @@
-const { ChannelType, PermissionFlagsBits } = require('discord.js');
-const CustomEmbedBuilder = require('./embedBuilder');
+const { ChannelType, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const ConfigManager = require('./configManager');
 const fs = require('fs-extra');
 const path = require('path');
@@ -7,229 +6,215 @@ const path = require('path');
 class TicketHandler {
     static ticketsPath = path.join(__dirname, '..', 'data', 'tickets.json');
 
-    /**
-     * Inicializar sistema de tickets
-     */
     static async initialize() {
         const dataDir = path.join(__dirname, '..', 'data');
-        if (!await fs.pathExists(dataDir)) {
-            await fs.ensureDir(dataDir);
-        }
-
+        await fs.ensureDir(dataDir);
         if (!await fs.pathExists(this.ticketsPath)) {
             await fs.writeJson(this.ticketsPath, {});
         }
     }
 
-    /**
-     * Manejar selección de ticket
-     */
+    // Manejar selección de menú desde Discord
     static async handleTicketSelection(interaction, client) {
         try {
             await interaction.deferReply({ ephemeral: true });
 
-            const [action, announcementKey] = interaction.customId.split('_');
+            const parts = interaction.customId.split('_');
+            // customId format: ticket_select_ANNOUNCEMENTID
+            const announcementKey = parts.slice(2).join('_');
             const selectedValue = interaction.values[0];
 
-            // Obtener configuración del servidor
             const config = await ConfigManager.getGuildConfig(interaction.guild.id);
+            const announcement = config.announcements && config.announcements[announcementKey];
 
-            // Verificar blacklist
-            const isBlacklisted = await this.isUserBlacklisted(interaction.user.id, interaction.guild.id);
-            if (isBlacklisted) {
-                return await interaction.editReply({
-                    embeds: [CustomEmbedBuilder.createConfirmationEmbed(
-                        'Acceso Denegado',
-                        'No puedes crear tickets porque estás en la lista negra.',
-                        'error'
-                    )]
-                });
+            if (!announcement) {
+                return await interaction.editReply({ content: '❌ Anuncio no encontrado.' });
             }
 
-            // Verificar límites de usuario
-            const canCreateTicket = await this.canUserCreateTicket(interaction.user.id, interaction.guild.id);
-            if (!canCreateTicket.allowed) {
-                return await interaction.editReply({
-                    embeds: [CustomEmbedBuilder.createConfirmationEmbed(
-                        'Límite Alcanzado',
-                        canCreateTicket.message,
-                        'warning'
-                    )]
-                });
-            }
-
-            // Buscar la opción seleccionada
-            const announcement = config.announcements[announcementKey];
             const selectedOption = announcement.options.find(opt => opt.value === selectedValue);
-
             if (!selectedOption) {
-                return await interaction.editReply('❌ Opción no válida.');
+                return await interaction.editReply({ content: '❌ Opción no válida.' });
             }
 
-            // Verificar si ya tiene un ticket abierto
-            const existingTicket = await this.getUserActiveTicket(interaction.user.id, interaction.guild.id);
-            if (existingTicket) {
-                return await interaction.editReply({
-                    embeds: [CustomEmbedBuilder.createConfirmationEmbed(
-                        'Ticket Existente',
-                        `Ya tienes un ticket abierto: <#${existingTicket.channelId}>`,
-                        'warning'
-                    )]
-                });
+            // Verificar si ya tiene ticket abierto
+            const existing = await this.getUserActiveTicket(interaction.user.id, interaction.guild.id);
+            if (existing) {
+                return await interaction.editReply({ content: `Ya tienes un ticket abierto: <#${existing.channelId}>` });
             }
 
             // Crear ticket
             const ticket = await this.createTicket(interaction, announcementKey, selectedOption, config);
 
-            await interaction.editReply({
-                embeds: [CustomEmbedBuilder.createConfirmationEmbed(
-                    'Ticket Creado',
-                    `Tu ticket ha sido creado exitosamente: <#${ticket.channelId}>`,
-                    'success'
-                )]
-            });
+            await interaction.editReply({ content: `✅ Tu ticket fue creado: <#${ticket.channelId}>` });
 
         } catch (error) {
-            console.error('❌ Error creando ticket:', error);
-            await interaction.editReply({
-                embeds: [CustomEmbedBuilder.createConfirmationEmbed(
-                    'Error',
-                    'Hubo un error al crear tu ticket. Contacta a un administrador.',
-                    'error'
-                )]
-            });
+            console.error('Error creando ticket:', error);
+            try {
+                await interaction.editReply({ content: '❌ Error al crear el ticket. Contacta a un admin.' });
+            } catch (_) {}
         }
     }
 
-    /**
-     * Crear un nuevo ticket
-     */
     static async createTicket(interaction, announcementKey, selectedOption, config) {
         const guild = interaction.guild;
         const user = interaction.user;
 
-        // Buscar o crear categoría de tickets
-        let category = guild.channels.cache.find(c => 
-            c.type === ChannelType.GuildCategory && 
-            c.name.toLowerCase().includes(config.ticketCategory.toLowerCase())
+        // Buscar o crear categoría
+        let category = guild.channels.cache.find(c =>
+            c.type === ChannelType.GuildCategory &&
+            c.name.toLowerCase() === (config.ticketCategory || 'TICKETS').toLowerCase()
         );
 
         if (!category) {
             category = await guild.channels.create({
-                name: config.ticketCategory,
+                name: config.ticketCategory || 'TICKETS',
                 type: ChannelType.GuildCategory,
-                permissionOverwrites: [
-                    {
-                        id: guild.roles.everyone,
-                        deny: [PermissionFlagsBits.ViewChannel]
-                    }
-                ]
+                permissionOverwrites: [{
+                    id: guild.roles.everyone,
+                    deny: [PermissionFlagsBits.ViewChannel]
+                }]
             });
         }
 
-        // Crear canal de ticket
         const ticketNumber = await this.getNextTicketNumber(guild.id);
-        const channelName = `ticket-${ticketNumber}-${user.username.toLowerCase()}`;
+        const channelName = `ticket-${ticketNumber}-${user.username.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+
+        // Permisos: solo el usuario que abrió + roles admin pueden ver
+        const permissionOverwrites = [
+            {
+                id: guild.roles.everyone,
+                deny: [PermissionFlagsBits.ViewChannel]
+            },
+            {
+                id: user.id,
+                allow: [
+                    PermissionFlagsBits.ViewChannel,
+                    PermissionFlagsBits.SendMessages,
+                    PermissionFlagsBits.ReadMessageHistory,
+                    PermissionFlagsBits.AttachFiles
+                ]
+            }
+        ];
+
+        // Añadir roles admin
+        if (config.adminRoles && config.adminRoles.length > 0) {
+            for (const roleName of config.adminRoles) {
+                const role = guild.roles.cache.find(r => r.name === roleName);
+                if (role) {
+                    permissionOverwrites.push({
+                        id: role.id,
+                        allow: [
+                            PermissionFlagsBits.ViewChannel,
+                            PermissionFlagsBits.SendMessages,
+                            PermissionFlagsBits.ReadMessageHistory,
+                            PermissionFlagsBits.ManageMessages,
+                            PermissionFlagsBits.AttachFiles
+                        ]
+                    });
+                }
+            }
+        }
 
         const ticketChannel = await guild.channels.create({
             name: channelName,
             type: ChannelType.GuildText,
             parent: category,
-            permissionOverwrites: [
-                {
-                    id: guild.roles.everyone,
-                    deny: [PermissionFlagsBits.ViewChannel]
-                },
-                {
-                    id: user.id,
-                    allow: [
-                        PermissionFlagsBits.ViewChannel,
-                        PermissionFlagsBits.SendMessages,
-                        PermissionFlagsBits.ReadMessageHistory
-                    ]
-                },
-                ...config.adminRoles.map(roleName => {
-                    const role = guild.roles.cache.find(r => r.name === roleName);
-                    if (role) {
-                        return {
-                            id: role.id,
-                            allow: [
-                                PermissionFlagsBits.ViewChannel,
-                                PermissionFlagsBits.SendMessages,
-                                PermissionFlagsBits.ReadMessageHistory,
-                                PermissionFlagsBits.ManageMessages
-                            ]
-                        };
-                    }
-                }).filter(Boolean)
-            ]
+            permissionOverwrites
         });
 
-        // Crear datos del ticket
         const ticketData = {
             id: `${guild.id}-${ticketNumber}`,
             channelId: ticketChannel.id,
             userId: user.id,
             guildId: guild.id,
+            ownerId: guild.ownerId, // Solo el dueño del server puede cerrar
             type: announcementKey,
             option: selectedOption.label,
             optionValue: selectedOption.value,
             status: 'open',
-            createdAt: new Date().toISOString(),
-            messages: []
+            createdAt: new Date().toISOString()
         };
 
-        // Guardar ticket
         await this.saveTicket(ticketData);
 
-        // Enviar mensaje inicial en el ticket
-        const welcomeEmbed = CustomEmbedBuilder.createTicketInfoEmbed(ticketData);
-        
-        const closeButton = CustomEmbedBuilder.createActionButtons([
-            {
-                customId: `close_ticket_${ticketData.id}`,
-                label: 'Cerrar Ticket',
-                style: 4, // Danger
-                emoji: '🔒'
-            }
-        ]);
+        // Mensaje de bienvenida con botón cerrar (solo visible para el dueño del server/admin)
+        const embed = new EmbedBuilder()
+            .setTitle(`🎫 Ticket #${ticketNumber}`)
+            .setDescription(`**Usuario:** <@${user.id}>\n**Opción:** ${selectedOption.label}\n**Descripción:** ${selectedOption.description}`)
+            .setColor('#FFD700')
+            .setTimestamp()
+            .setFooter({ text: `Ticket ID: ${ticketData.id}` });
+
+        const closeBtn = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setCustomId(`close_ticket_${ticketData.id}`)
+                .setLabel('🔒 Cerrar Ticket')
+                .setStyle(ButtonStyle.Danger)
+        );
 
         await ticketChannel.send({
-            content: `Hola <@${user.id}>, bienvenido a tu ticket!\n\n**Opción seleccionada:** ${selectedOption.label}\n**Descripción:** ${selectedOption.description}`,
-            embeds: [welcomeEmbed],
-            components: [closeButton]
+            content: `<@${user.id}> ¡Hola! Un administrador te atenderá pronto.`,
+            embeds: [embed],
+            components: [closeBtn]
         });
 
-        // Log del ticket
-        await this.logTicketAction(guild, 'create', ticketData, user, config);
+        // Log en canal de logs
+        try {
+            const logChannel = guild.channels.cache.find(c => c.name === (config.logChannel || 'logs'));
+            if (logChannel) {
+                await logChannel.send({
+                    embeds: [new EmbedBuilder()
+                        .setTitle('🎫 Ticket Abierto')
+                        .setDescription(`**Usuario:** <@${user.id}>\n**Canal:** <#${ticketChannel.id}>\n**Opción:** ${selectedOption.label}`)
+                        .setColor('#27ae60')
+                        .setTimestamp()]
+                });
+            }
+        } catch (_) {}
 
         return ticketData;
     }
 
-    /**
-     * Obtener siguiente número de ticket
-     */
+    // Cerrar ticket - SOLO el dueño del servidor o roles admin pueden hacerlo
+    static async closeTicket(ticketId, closedBy) {
+        const tickets = await this.getAllTickets();
+        const ticket = tickets[ticketId];
+        if (ticket) {
+            ticket.status = 'closed';
+            ticket.closedAt = new Date().toISOString();
+            ticket.closedBy = closedBy.id;
+            await this.saveTicket(ticket);
+        }
+        return ticket;
+    }
+
+    // Verificar si puede cerrar - SOLO dueño del server o roles admin
+    static async canClose(interaction) {
+        // Dueño del servidor siempre puede
+        if (interaction.user.id === interaction.guild.ownerId) return true;
+
+        // Roles admin
+        const config = await ConfigManager.getGuildConfig(interaction.guild.id);
+        if (config.adminRoles) {
+            return interaction.member.roles.cache.some(r => config.adminRoles.includes(r.name));
+        }
+
+        return false;
+    }
+
     static async getNextTicketNumber(guildId) {
         const tickets = await this.getAllTickets();
         const guildTickets = Object.values(tickets).filter(t => t.guildId === guildId);
         return guildTickets.length + 1;
     }
 
-    /**
-     * Obtener ticket activo del usuario
-     */
     static async getUserActiveTicket(userId, guildId) {
         const tickets = await this.getAllTickets();
-        return Object.values(tickets).find(t => 
-            t.userId === userId && 
-            t.guildId === guildId && 
-            t.status === 'open'
+        return Object.values(tickets).find(t =>
+            t.userId === userId && t.guildId === guildId && t.status === 'open'
         );
     }
 
-    /**
-     * Guardar ticket
-     */
     static async saveTicket(ticketData) {
         await this.initialize();
         const tickets = await fs.readJson(this.ticketsPath);
@@ -237,108 +222,9 @@ class TicketHandler {
         await fs.writeJson(this.ticketsPath, tickets, { spaces: 2 });
     }
 
-    /**
-     * Obtener todos los tickets
-     */
     static async getAllTickets() {
         await this.initialize();
         return await fs.readJson(this.ticketsPath);
-    }
-
-    /**
-     * Cerrar ticket
-     */
-    static async closeTicket(ticketId, closedBy) {
-        const tickets = await this.getAllTickets();
-        const ticket = tickets[ticketId];
-        
-        if (ticket) {
-            ticket.status = 'closed';
-            ticket.closedAt = new Date().toISOString();
-            ticket.closedBy = closedBy.id;
-            await this.saveTicket(ticket);
-        }
-
-        return ticket;
-    }
-
-    /**
-     * Log de acciones de tickets
-     */
-    static async logTicketAction(guild, action, ticketData, user, config = null) {
-        if (!config) {
-            config = await ConfigManager.getGuildConfig(guild.id);
-        }
-        
-        const logChannel = guild.channels.cache.find(c => c.name === config.logChannel);
-        if (!logChannel) return;
-
-        const logEmbed = CustomEmbedBuilder.createConfirmationEmbed(
-            `Ticket ${action}`,
-            `**Usuario:** <@${user.id}>\n**Ticket:** ${ticketData.id}\n**Tipo:** ${ticketData.type}\n**Canal:** <#${ticketData.channelId}>`,
-            'info'
-        );
-
-        await logChannel.send({ embeds: [logEmbed] });
-    }
-
-    /**
-     * Verificar si un usuario está en la blacklist
-     */
-    static async isUserBlacklisted(userId, guildId) {
-        try {
-            const blacklistPath = path.join(__dirname, '..', 'data', 'blacklist.json');
-            if (!await fs.pathExists(blacklistPath)) return false;
-            
-            const blacklist = await fs.readJson(blacklistPath);
-            return blacklist[guildId] && blacklist[guildId][userId];
-        } catch (error) {
-            console.error('Error verificando blacklist:', error);
-            return false;
-        }
-    }
-
-    /**
-     * Verificar si un usuario puede crear un ticket
-     */
-    static async canUserCreateTicket(userId, guildId) {
-        try {
-            // Obtener límites de usuario
-            const limitsPath = path.join(__dirname, '..', 'data', 'user-limits.json');
-            let userLimit = null;
-            
-            if (await fs.pathExists(limitsPath)) {
-                const limits = await fs.readJson(limitsPath);
-                if (limits[guildId] && limits[guildId][userId]) {
-                    userLimit = limits[guildId][userId].limit;
-                }
-            }
-
-            // Si no hay límite específico, permitir
-            if (userLimit === null) {
-                return { allowed: true };
-            }
-
-            // Contar tickets activos del usuario
-            const tickets = await this.getAllTickets();
-            const activeTickets = Object.values(tickets).filter(t => 
-                t.userId === userId && 
-                t.guildId === guildId && 
-                t.status === 'open'
-            ).length;
-
-            if (activeTickets >= userLimit) {
-                return {
-                    allowed: false,
-                    message: `Has alcanzado tu límite de ${userLimit} tickets simultáneos. Cierra algunos tickets antes de crear uno nuevo.`
-                };
-            }
-
-            return { allowed: true };
-        } catch (error) {
-            console.error('Error verificando límite de usuario:', error);
-            return { allowed: true }; // En caso de error, permitir
-        }
     }
 }
 

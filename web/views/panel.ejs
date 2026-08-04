@@ -3,937 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title>Panel de Control</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #FFD700;
-            --secondary-color: #FFA500;
-            --dark-color: #2C3E50;
-            --light-color: #F8F9FA;
-            --sidebar-width: 280px;
-        }
-        
-        body {
-            background: #F8F9FA;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            width: var(--sidebar-width);
-            background: linear-gradient(180deg, var(--dark-color) 0%, #34495e 100%);
-            padding: 0;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        
-        .sidebar-header {
-            padding: 20px;
-            background: rgba(255, 215, 0, 0.1);
-            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
-        }
-        
-        .sidebar-header h4 {
-            color: var(--primary-color);
-            margin: 0;
-            font-weight: bold;
-        }
-        
-        .sidebar-menu {
-            padding: 20px 0;
-        }
-        
-        .menu-item {
-            display: block;
-            padding: 15px 25px;
-            color: #ECF0F1;
-            text-decoration: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .menu-item:hover, .menu-item.active {
-            background: rgba(255, 215, 0, 0.1);
-            color: var(--primary-color);
-            border-left: 3px solid var(--primary-color);
-        }
-        
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 0;
-        }
-        
-        .top-navbar {
-            background: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .content-area {
-            padding: 30px;
-        }
-        
-        .card-custom {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-        }
-        
-        .card-header-custom {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: var(--dark-color);
-            border-radius: 15px 15px 0 0 !important;
-            padding: 20px;
-            font-weight: bold;
-        }
-        
-        .btn-primary-custom {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            color: var(--dark-color);
-            font-weight: bold;
-            border-radius: 10px;
-        }
-        
-        .btn-primary-custom:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
-            color: var(--dark-color);
-        }
-        
-        .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-        }
-        
-        .stats-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(255, 215, 0, 0.25);
-        }
-        
-        .table-hover tbody tr:hover {
-            background-color: rgba(255, 215, 0, 0.1);
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: #666;
-        }
-        
-        .announcement-preview {
-            border: 2px dashed var(--primary-color);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            background: rgba(255, 215, 0, 0.05);
-        }
+        :root { --gold: #FFD700; --dark: #2C3E50; --sidebar: 260px; }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+        .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: var(--sidebar); background: linear-gradient(180deg, #1a252f, #2c3e50); z-index: 999; }
+        .sidebar-logo { padding: 25px 20px; border-bottom: 1px solid rgba(255,215,0,0.2); color: var(--gold); font-size: 1.2rem; font-weight: bold; }
+        .nav-link { color: #bdc3c7 !important; padding: 14px 20px !important; border-left: 3px solid transparent; transition: all .2s; }
+        .nav-link:hover, .nav-link.active { color: var(--gold) !important; background: rgba(255,215,0,0.08); border-left-color: var(--gold); }
+        .main { margin-left: var(--sidebar); padding: 30px; }
+        .topbar { background: white; padding: 15px 25px; margin: -30px -30px 30px -30px; box-shadow: 0 2px 8px rgba(0,0,0,.06); display: flex; justify-content: space-between; align-items: center; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 20px; }
+        .card-header { background: linear-gradient(135deg, var(--gold), #FFA500); color: #1a252f; font-weight: bold; border-radius: 12px 12px 0 0 !important; padding: 15px 20px; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), #FFA500); border: none; color: #1a252f; font-weight: bold; }
+        .btn-gold:hover { opacity: .9; color: #1a252f; }
+        .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+        .stat-num { font-size: 2rem; font-weight: bold; color: var(--gold); }
+        .section { display: none; }
+        .section.active { display: block; }
+        .announce-item { background: white; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.06); display: flex; justify-content: space-between; align-items: center; }
+        .announce-item h6 { margin: 0; font-weight: bold; }
+        .announce-item small { color: #7f8c8d; }
+        .color-dot { width: 14px; height: 14px; border-radius: 50%; display: inline-block; margin-right: 8px; }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h4><i class="fas fa-robot"></i> Bot Panel</h4>
-        </div>
-        <nav class="sidebar-menu">
-            <a href="#" class="menu-item active" data-section="dashboard">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </a>
-            <a href="#" class="menu-item" data-section="announcements">
-                <i class="fas fa-bullhorn"></i> Anuncios
-            </a>
-            <a href="#" class="menu-item" data-section="config">
-                <i class="fas fa-cog"></i> Configuración
-            </a>
-            <a href="#" class="menu-item" data-section="logs">
-                <i class="fas fa-file-alt"></i> Logs
-            </a>
-            <a href="#" class="menu-item" data-section="backups">
-                <i class="fas fa-database"></i> Respaldos
-            </a>
-            <a href="#" class="menu-item" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-            </a>
-        </nav>
+<div class="sidebar">
+    <div class="sidebar-logo"><i class="fas fa-robot me-2"></i>Bot Panel</div>
+    <nav class="mt-2">
+        <a href="#" class="nav-link active" data-sec="dashboard"><i class="fas fa-chart-bar me-2"></i>Dashboard</a>
+        <a href="#" class="nav-link" data-sec="announcements"><i class="fas fa-bullhorn me-2"></i>Anuncios</a>
+        <a href="#" class="nav-link" data-sec="config"><i class="fas fa-cog me-2"></i>Configuración</a>
+        <a href="#" class="nav-link" data-sec="logs"><i class="fas fa-list me-2"></i>Logs</a>
+        <a href="#" class="nav-link" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Salir</a>
+    </nav>
+</div>
+
+<div class="main">
+    <div class="topbar">
+        <h5 class="mb-0 fw-bold" id="pageTitle">Dashboard</h5>
+        <span class="text-muted small">Bienvenido, Admin</span>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Navbar -->
-        <div class="top-navbar d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">Panel de Control</h2>
-            <div>
-                <span class="text-muted">Bienvenido, Admin</span>
-                <button class="btn btn-outline-secondary btn-sm ms-2" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-            </div>
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section active">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3"><div class="stat-card text-center"><div class="stat-num" id="s-total">0</div><div class="text-muted">Total Tickets</div></div></div>
+            <div class="col-md-3"><div class="stat-card text-center"><div class="stat-num" id="s-active" style="color:#27ae60">0</div><div class="text-muted">Activos</div></div></div>
+            <div class="col-md-3"><div class="stat-card text-center"><div class="stat-num" id="s-closed" style="color:#e74c3c">0</div><div class="text-muted">Cerrados</div></div></div>
+            <div class="col-md-3"><div class="stat-card text-center"><div class="stat-num" id="s-users" style="color:#3498db">0</div><div class="text-muted">Usuarios</div></div></div>
         </div>
+        <div class="card"><div class="card-header"><i class="fas fa-history me-2"></i>Actividad Reciente</div><div class="card-body" id="recent-logs"><div class="text-center text-muted py-4">Cargando...</div></div></div>
+    </div>
 
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Dashboard Section -->
-            <div id="dashboard-section" class="content-section">
+    <!-- ANUNCIOS -->
+    <div id="announcements" class="section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div></div>
+            <button class="btn btn-gold" onclick="openCreateModal()"><i class="fas fa-plus me-2"></i>Nuevo Anuncio</button>
+        </div>
+        <div id="announcements-list"><div class="text-center text-muted py-5"><i class="fas fa-bullhorn fa-3x mb-3 d-block" style="color:#ddd"></i>No hay anuncios aún. Crea el primero.</div></div>
+    </div>
+
+    <!-- CONFIG -->
+    <div id="config" class="section">
+        <div class="card"><div class="card-header"><i class="fas fa-sliders-h me-2"></i>Configuración General</div>
+        <div class="card-body">
+            <form id="configForm">
                 <div class="row">
-                    <div class="col-md-3">
-                        <div class="stats-card">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="stats-number" id="totalTickets">-</div>
-                                    <div>Total Tickets</div>
-                                </div>
-                                <i class="fas fa-ticket-alt fa-2x opacity-50"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="stats-number" id="activeTickets">-</div>
-                                    <div>Tickets Activos</div>
-                                </div>
-                                <i class="fas fa-clock fa-2x opacity-50"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="stats-number" id="totalUsers">-</div>
-                                    <div>Total Usuarios</div>
-                                </div>
-                                <i class="fas fa-users fa-2x opacity-50"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stats-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="stats-number" id="blacklistedUsers">-</div>
-                                    <div>Bloqueados</div>
-                                </div>
-                                <i class="fas fa-ban fa-2x opacity-50"></i>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="col-md-4 mb-3"><label class="form-label fw-bold">Prefijo</label><input type="text" class="form-control" id="cfg-prefix" placeholder="!"></div>
+                    <div class="col-md-4 mb-3"><label class="form-label fw-bold">Color de Embeds</label><input type="color" class="form-control form-control-color w-100" id="cfg-color" value="#FFD700"></div>
+                    <div class="col-md-4 mb-3"><label class="form-label fw-bold">Categoría de Tickets</label><input type="text" class="form-control" id="cfg-category" placeholder="TICKETS"></div>
+                    <div class="col-md-6 mb-3"><label class="form-label fw-bold">Canal de Logs</label><input type="text" class="form-control" id="cfg-logchannel" placeholder="logs"></div>
+                    <div class="col-md-6 mb-3"><label class="form-label fw-bold">Roles Admin (separados por coma)</label><input type="text" class="form-control" id="cfg-roles" placeholder="Admin, Moderador"></div>
                 </div>
-                
-                <!-- Recent Logs -->
-                <div class="card card-custom">
-                    <div class="card-header card-header-custom">
-                        <i class="fas fa-history"></i> Actividad Reciente
-                    </div>
-                    <div class="card-body">
-                        <div id="recentLogs" class="loading">Cargando actividad...</div>
-                    </div>
-                </div>
-            </div>
-            <!-- Announcements Section -->
-            <div id="announcements-section" class="content-section hidden">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3><i class="fas fa-bullhorn"></i> Gestión de Anuncios</h3>
-                    <button class="btn btn-primary-custom" onclick="showCreateAnnouncementModal()">
-                        <i class="fas fa-plus"></i> Nuevo Anuncio
-                    </button>
-                </div>
-                
-                <div class="card card-custom">
-                    <div class="card-header card-header-custom">
-                        <i class="fas fa-list"></i> Anuncios Existentes
-                    </div>
-                    <div class="card-body">
-                        <div id="announcementsList" class="loading">Cargando anuncios...</div>
-                    </div>
-                </div>
-            </div>
+                <button type="submit" class="btn btn-gold"><i class="fas fa-save me-2"></i>Guardar</button>
+            </form>
+        </div></div>
+    </div>
 
-            <!-- Configuration Section -->
-            <div id="config-section" class="content-section hidden">
-                <h3><i class="fas fa-cog"></i> Configuración Global</h3>
-                
-                <div class="card card-custom">
-                    <div class="card-header card-header-custom">
-                        <i class="fas fa-sliders-h"></i> Configuración General
+    <!-- LOGS -->
+    <div id="logs" class="section">
+        <div class="card"><div class="card-header d-flex justify-content-between align-items-center"><span><i class="fas fa-list me-2"></i>Logs del Sistema</span>
+            <button class="btn btn-sm btn-light" onclick="loadLogs()"><i class="fas fa-sync"></i></button>
+        </div><div class="card-body" id="logs-list"><div class="text-center text-muted py-4">Cargando...</div></div></div>
+    </div>
+</div>
+
+<!-- MODAL CREAR/EDITAR ANUNCIO -->
+<div class="modal fade" id="announcementModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--gold);">
+                <h5 class="modal-title fw-bold" id="modalTitle">Nuevo Anuncio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-id">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3"><label class="form-label fw-bold">ID del Anuncio <small class="text-muted">(sin espacios)</small></label>
+                            <input type="text" class="form-control" id="a-id" placeholder="mi-producto"></div>
+                        <div class="mb-3"><label class="form-label fw-bold">Título</label>
+                            <input type="text" class="form-control" id="a-title" placeholder="Nombre de tu producto o servicio"></div>
+                        <div class="mb-3"><label class="form-label fw-bold">Descripción</label>
+                            <textarea class="form-control" id="a-desc" rows="5" placeholder="Describe tu producto... puedes usar **negrita**, > citas, etc."></textarea></div>
+                        <div class="row">
+                            <div class="col-6 mb-3"><label class="form-label fw-bold">Color</label>
+                                <input type="color" class="form-control form-control-color w-100" id="a-color" value="#FFD700"></div>
+                            <div class="col-6 mb-3"><label class="form-label fw-bold">URL Imagen <small class="text-muted">(opcional)</small></label>
+                                <input type="url" class="form-control" id="a-image" placeholder="https://..."></div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <form id="configForm">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="prefix" class="form-label">Prefijo</label>
-                                        <input type="text" class="form-control" id="prefix" name="prefix">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="embedColor" class="form-label">Color de Embeds</label>
-                                        <input type="color" class="form-control form-control-color" id="embedColor" name="embedColor">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="ticketCategory" class="form-label">Categoría de Tickets</label>
-                                        <input type="text" class="form-control" id="ticketCategory" name="ticketCategory">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="logChannel" class="form-label">Canal de Logs</label>
-                                        <input type="text" class="form-control" id="logChannel" name="logChannel">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <label for="adminRoles" class="form-label">Roles Administradores (separados por comas)</label>
-                                <input type="text" class="form-control" id="adminRoles" name="adminRoles" placeholder="Admin,Moderador,Staff">
-                            </div>
-                            
-                            <button type="submit" class="btn btn-primary-custom">
-                                <i class="fas fa-save"></i> Guardar Configuración
-                            </button>
-                        </form>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold mb-0">Opciones de Ticket</label>
+                            <button type="button" class="btn btn-sm btn-gold" onclick="addOption()"><i class="fas fa-plus"></i> Añadir</button>
+                        </div>
+                        <div id="options-container"></div>
                     </div>
                 </div>
             </div>
-
-            <!-- Logs Section -->
-            <div id="logs-section" class="content-section hidden">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3><i class="fas fa-file-alt"></i> Logs del Sistema</h3>
-                    <div>
-                        <select class="form-select d-inline-block me-2" id="logTypeFilter" style="width: auto;">
-                            <option value="all">Todos los tipos</option>
-                            <option value="ticket_create">Tickets Creados</option>
-                            <option value="ticket_close">Tickets Cerrados</option>
-                            <option value="config_change">Cambios de Config</option>
-                            <option value="error">Errores</option>
-                        </select>
-                        <button class="btn btn-secondary" onclick="loadLogs()">
-                            <i class="fas fa-refresh"></i> Actualizar
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="card card-custom">
-                    <div class="card-header card-header-custom">
-                        <i class="fas fa-list"></i> Registros de Actividad
-                    </div>
-                    <div class="card-body">
-                        <div id="logsList" class="loading">Cargando logs...</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Backups Section -->
-            <div id="backups-section" class="content-section hidden">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3><i class="fas fa-database"></i> Respaldos del Sistema</h3>
-                    <button class="btn btn-primary-custom" onclick="createBackup()">
-                        <i class="fas fa-plus"></i> Crear Respaldo
-                    </button>
-                </div>
-                
-                <div class="card card-custom">
-                    <div class="card-header card-header-custom">
-                        <i class="fas fa-archive"></i> Respaldos Disponibles
-                    </div>
-                    <div class="card-body">
-                        <div id="backupsList" class="loading">Cargando respaldos...</div>
-                    </div>
-                </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-gold" onclick="saveAnnouncement()"><i class="fas fa-save me-2"></i>Guardar Anuncio</button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal para Crear/Editar Anuncio -->
-    <div class="modal fade" id="announcementModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header" style="background: var(--primary-color); color: var(--dark-color);">
-                    <h5 class="modal-title" id="announcementModalTitle">
-                        <i class="fas fa-bullhorn"></i> Nuevo Anuncio
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- MODAL ENVIAR ANUNCIO -->
+<div class="modal fade" id="sendModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--gold);">
+                <h5 class="modal-title fw-bold"><i class="fas fa-paper-plane me-2"></i>Enviar Anuncio a Discord</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="send-announcement-id">
+                <p class="text-muted mb-3">Ingresa el ID del canal de Discord donde quieres enviar el anuncio.</p>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">ID del Canal de Discord</label>
+                    <input type="text" class="form-control form-control-lg" id="send-channel-id" placeholder="Ej: 1234567890123456789">
+                    <small class="text-muted">Para obtener el ID: click derecho en el canal → Copiar ID (activa modo desarrollador en Discord)</small>
                 </div>
-                <div class="modal-body">
-                    <form id="announcementForm">
-                        <input type="hidden" id="announcementId">
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="announcementIdInput" class="form-label">ID del Anuncio</label>
-                                    <input type="text" class="form-control" id="announcementIdInput" required>
-                                    <small class="text-muted">Sin espacios, solo letras y guiones</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="announcementTitle" class="form-label">Título</label>
-                                    <input type="text" class="form-control" id="announcementTitle" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="announcementDescription" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="announcementDescription" rows="5" required></textarea>
-                            <small class="text-muted">Puedes usar Markdown para formato</small>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="announcementColor" class="form-label">Color</label>
-                                    <input type="color" class="form-control form-control-color" id="announcementColor" value="#FFD700">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="announcementImage" class="form-label">URL de Imagen (Opcional)</label>
-                                    <input type="url" class="form-control" id="announcementImage">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h6><i class="fas fa-list"></i> Opciones de Ticket</h6>
-                        <div id="optionsContainer">
-                            <div class="option-item border p-3 mb-3 rounded">
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control option-label" placeholder="Ej: Plan Premium - $35">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="text" class="form-control option-description" placeholder="Ej: Duración: 30 días">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control option-emoji" placeholder="Emoji">
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button type="button" class="btn btn-secondary mb-3" onclick="addOption()">
-                            <i class="fas fa-plus"></i> Añadir Opción
-                        </button>
-                        
-                        <!-- Vista previa -->
-                        <div class="announcement-preview">
-                            <h6><i class="fas fa-eye"></i> Vista Previa</h6>
-                            <div id="announcementPreview">
-                                <strong id="previewTitle">Título del Anuncio</strong>
-                                <p id="previewDescription">Descripción del anuncio...</p>
-                                <small id="previewColor" class="text-muted">Color: #FFD700</small>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary-custom" onclick="saveAnnouncement()">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
-                </div>
+                <div id="send-result"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-gold" onclick="sendAnnouncement()"><i class="fas fa-paper-plane me-2"></i>Enviar</button>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let currentConfig = {};
-        let currentAnnouncements = {};
-        const authToken = localStorage.getItem('authToken');
-        
-        // Verificar autenticación
-        if (!authToken) {
-            window.location.href = '/';
-        }
-        
-        // Headers para requests
-        const authHeaders = {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json'
-        };
-        
-        // Navegación entre secciones
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (item.dataset.section) {
-                    showSection(item.dataset.section);
-                    
-                    // Update active menu item
-                    document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                }
-            });
-        });
-        
-        function showSection(sectionName) {
-            // Hide all sections
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.add('hidden');
-            });
-            
-            // Show selected section
-            document.getElementById(sectionName + '-section').classList.remove('hidden');
-            
-            // Load section data
-            switch(sectionName) {
-                case 'dashboard':
-                    loadDashboard();
-                    break;
-                case 'announcements':
-                    loadAnnouncements();
-                    break;
-                case 'config':
-                    loadConfig();
-                    break;
-                case 'logs':
-                    loadLogs();
-                    break;
-                case 'backups':
-                    loadBackups();
-                    break;
-            }
-        }
-        
-        // Load Dashboard
-        async function loadDashboard() {
-            try {
-                const response = await fetch('/api/stats', { headers: authHeaders });
-                const stats = await response.json();
-                
-                document.getElementById('totalTickets').textContent = stats.totalTickets || 0;
-                document.getElementById('activeTickets').textContent = stats.activeTickets || 0;
-                document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
-                document.getElementById('blacklistedUsers').textContent = stats.blacklistedUsers || 0;
-                
-                // Load recent logs
-                const logsResponse = await fetch('/api/logs?days=1', { headers: authHeaders });
-                const logs = await logsResponse.json();
-                
-                const recentLogsHtml = logs.slice(0, 10).map(log => `
-                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                        <div>
-                            <strong>${log.type.replace('_', ' ').toUpperCase()}</strong>
-                            <p class="mb-0 text-muted">${log.message}</p>
-                        </div>
-                        <small class="text-muted">${new Date(log.timestamp).toLocaleString()}</small>
-                    </div>
-                `).join('');
-                
-                document.getElementById('recentLogs').innerHTML = recentLogsHtml || '<p class="text-muted">No hay actividad reciente</p>';
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
-            }
-        }
-        
-        // Load Configuration
-        async function loadConfig() {
-            try {
-                const response = await fetch('/api/config/global', { headers: authHeaders });
-                currentConfig = await response.json();
-                
-                document.getElementById('prefix').value = currentConfig.prefix || '';
-                document.getElementById('embedColor').value = currentConfig.embedColor || '#FFD700';
-                document.getElementById('ticketCategory').value = currentConfig.ticketCategory || '';
-                document.getElementById('logChannel').value = currentConfig.logChannel || '';
-                document.getElementById('adminRoles').value = currentConfig.adminRoles ? currentConfig.adminRoles.join(', ') : '';
-            } catch (error) {
-                console.error('Error loading config:', error);
-            }
-        }
-        
-        // Save Configuration
-        document.getElementById('configForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            const config = Object.fromEntries(formData);
-            
-            // Convert adminRoles to array
-            config.adminRoles = config.adminRoles.split(',').map(role => role.trim()).filter(role => role);
-            
-            try {
-                const response = await fetch('/api/config/global', {
-                    method: 'PUT',
-                    headers: authHeaders,
-                    body: JSON.stringify(config)
-                });
-                
-                if (response.ok) {
-                    showAlert('success', 'Configuración guardada exitosamente');
-                } else {
-                    showAlert('danger', 'Error al guardar configuración');
-                }
-            } catch (error) {
-                showAlert('danger', 'Error de conexión');
-            }
-        });
-        
-        // Load Announcements
-        async function loadAnnouncements() {
-            try {
-                const response = await fetch('/api/announcements', { headers: authHeaders });
-                currentAnnouncements = await response.json();
-                
-                const announcementsHtml = Object.entries(currentAnnouncements).map(([id, announcement]) => `
-                    <div class="card mb-3">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h6 class="mb-0">${announcement.title}</h6>
-                            <div>
-                                <button class="btn btn-sm btn-outline-primary me-2" onclick="editAnnouncement('${id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteAnnouncement('${id}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <p class="text-muted">${announcement.description.substring(0, 100)}...</p>
-                            <small>ID: ${id} | Opciones: ${announcement.options ? announcement.options.length : 0}</small>
-                        </div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('announcementsList').innerHTML = announcementsHtml || '<p class="text-muted">No hay anuncios configurados</p>';
-            } catch (error) {
-                console.error('Error loading announcements:', error);
-            }
-        }
-        
-        // Show Create Announcement Modal
-        function showCreateAnnouncementModal() {
-            document.getElementById('announcementModalTitle').innerHTML = '<i class="fas fa-plus"></i> Nuevo Anuncio';
-            document.getElementById('announcementForm').reset();
-            document.getElementById('announcementId').value = '';
-            document.getElementById('announcementColor').value = '#FFD700';
-            
-            // Reset options
-            document.getElementById('optionsContainer').innerHTML = `
-                <div class="option-item border p-3 mb-3 rounded">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <input type="text" class="form-control option-label" placeholder="Ej: Plan Premium - $35">
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control option-description" placeholder="Ej: Duración: 30 días">
-                        </div>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control option-emoji" placeholder="Emoji">
-                        </div>
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+<script>
+const token = localStorage.getItem('authToken');
+if (!token) window.location.href = '/';
+const H = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+let announcements = {};
+
+// Navegación
+document.querySelectorAll('[data-sec]').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        const sec = a.dataset.sec;
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('[data-sec]').forEach(l => l.classList.remove('active'));
+        document.getElementById(sec).classList.add('active');
+        a.classList.add('active');
+        document.getElementById('pageTitle').textContent = a.textContent.trim();
+        if (sec === 'dashboard') loadDashboard();
+        if (sec === 'announcements') loadAnnouncements();
+        if (sec === 'config') loadConfig();
+        if (sec === 'logs') loadLogs();
+    });
+});
+
+// Dashboard
+async function loadDashboard() {
+    const r = await fetch('/api/stats', { headers: H });
+    const s = await r.json();
+    document.getElementById('s-total').textContent = s.totalTickets || 0;
+    document.getElementById('s-active').textContent = s.activeTickets || 0;
+    document.getElementById('s-closed').textContent = s.closedTickets || 0;
+    document.getElementById('s-users').textContent = s.totalUsers || 0;
+    const lr = await fetch('/api/logs?days=1', { headers: H });
+    const logs = await lr.json();
+    const el = document.getElementById('recent-logs');
+    if (!logs.length) { el.innerHTML = '<p class="text-muted text-center py-3">Sin actividad reciente</p>'; return; }
+    el.innerHTML = logs.slice(0,8).map(l => `
+        <div class="d-flex justify-content-between border-bottom py-2">
+            <div><span class="badge bg-secondary me-2">${l.type}</span>${l.message}</div>
+            <small class="text-muted">${new Date(l.timestamp).toLocaleTimeString()}</small>
+        </div>`).join('');
+}
+
+// Anuncios
+async function loadAnnouncements() {
+    const r = await fetch('/api/announcements', { headers: H });
+    announcements = await r.json();
+    const el = document.getElementById('announcements-list');
+    const keys = Object.keys(announcements);
+    if (!keys.length) {
+        el.innerHTML = '<div class="text-center text-muted py-5"><i class="fas fa-bullhorn fa-3x mb-3 d-block" style="color:#ddd"></i>No hay anuncios aún. Crea el primero.</div>';
+        return;
+    }
+    el.innerHTML = keys.map(id => {
+        const a = announcements[id];
+        return `<div class="announce-item">
+            <div class="d-flex align-items-center">
+                <span class="color-dot" style="background:${a.color || '#FFD700'}"></span>
+                <div>
+                    <h6>${a.title}</h6>
+                    <small>ID: <code>${id}</code> · ${a.options ? a.options.length : 0} opciones</small>
                 </div>
-            `;
-            
-            new bootstrap.Modal(document.getElementById('announcementModal')).show();
-        }
-        // Add Option
-        function addOption() {
-            const container = document.getElementById('optionsContainer');
-            const optionHtml = `
-                <div class="option-item border p-3 mb-3 rounded">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <input type="text" class="form-control option-label" placeholder="Ej: Plan Premium - $35">
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" class="form-control option-description" placeholder="Ej: Duración: 30 días">
-                        </div>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control option-emoji" placeholder="Emoji">
-                        </div>
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', optionHtml);
-        }
-        
-        // Remove Option
-        function removeOption(button) {
-            const optionsContainer = document.getElementById('optionsContainer');
-            if (optionsContainer.children.length > 1) {
-                button.closest('.option-item').remove();
-            }
-        }
-        
-        // Save Announcement
-        async function saveAnnouncement() {
-            const id = document.getElementById('announcementIdInput').value.toLowerCase().replace(/\s+/g, '_');
-            const title = document.getElementById('announcementTitle').value;
-            const description = document.getElementById('announcementDescription').value;
-            const color = document.getElementById('announcementColor').value;
-            const image = document.getElementById('announcementImage').value;
-            
-            // Collect options
-            const options = [];
-            document.querySelectorAll('.option-item').forEach(item => {
-                const label = item.querySelector('.option-label').value;
-                const desc = item.querySelector('.option-description').value;
-                const emoji = item.querySelector('.option-emoji').value;
-                
-                if (label && desc) {
-                    options.push({
-                        label,
-                        description: desc,
-                        value: label.toLowerCase().replace(/[^a-z0-9]/g, '_'),
-                        emoji: emoji || null
-                    });
-                }
-            });
-            
-            const announcement = {
-                title,
-                description,
-                color,
-                options
-            };
-            
-            if (image) announcement.image = image;
-            
-            try {
-                const isEdit = document.getElementById('announcementId').value;
-                const method = isEdit ? 'PUT' : 'POST';
-                const url = isEdit ? `/api/announcements/${isEdit}` : '/api/announcements';
-                
-                const response = await fetch(url, {
-                    method,
-                    headers: authHeaders,
-                    body: JSON.stringify(isEdit ? announcement : { id, announcement })
-                });
-                
-                if (response.ok) {
-                    bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide();
-                    showAlert('success', isEdit ? 'Anuncio actualizado' : 'Anuncio creado');
-                    loadAnnouncements();
-                } else {
-                    showAlert('danger', 'Error al guardar anuncio');
-                }
-            } catch (error) {
-                showAlert('danger', 'Error de conexión');
-            }
-        }
-        
-        // Edit Announcement
-        function editAnnouncement(id) {
-            const announcement = currentAnnouncements[id];
-            
-            document.getElementById('announcementModalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Anuncio';
-            document.getElementById('announcementId').value = id;
-            document.getElementById('announcementIdInput').value = id;
-            document.getElementById('announcementTitle').value = announcement.title;
-            document.getElementById('announcementDescription').value = announcement.description;
-            document.getElementById('announcementColor').value = announcement.color || '#FFD700';
-            document.getElementById('announcementImage').value = announcement.image || '';
-            
-            // Load options
-            const container = document.getElementById('optionsContainer');
-            container.innerHTML = '';
-            
-            announcement.options.forEach(option => {
-                const optionHtml = `
-                    <div class="option-item border p-3 mb-3 rounded">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <input type="text" class="form-control option-label" value="${option.label}">
-                            </div>
-                            <div class="col-md-4">
-                                <input type="text" class="form-control option-description" value="${option.description}">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="text" class="form-control option-emoji" value="${option.emoji || ''}">
-                            </div>
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', optionHtml);
-            });
-            
-            new bootstrap.Modal(document.getElementById('announcementModal')).show();
-        }
-        
-        // Delete Announcement
-        async function deleteAnnouncement(id) {
-            if (!confirm('¿Estás seguro de eliminar este anuncio?')) return;
-            
-            try {
-                const response = await fetch(`/api/announcements/${id}`, {
-                    method: 'DELETE',
-                    headers: authHeaders
-                });
-                
-                if (response.ok) {
-                    showAlert('success', 'Anuncio eliminado');
-                    loadAnnouncements();
-                } else {
-                    showAlert('danger', 'Error al eliminar anuncio');
-                }
-            } catch (error) {
-                showAlert('danger', 'Error de conexión');
-            }
-        }
-        
-        // Load Logs
-        async function loadLogs() {
-            try {
-                const type = document.getElementById('logTypeFilter').value;
-                const response = await fetch(`/api/logs?type=${type}&days=7`, { headers: authHeaders });
-                const logs = await response.json();
-                
-                const logsHtml = logs.map(log => `
-                    <div class="border-bottom py-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <span class="badge bg-secondary">${log.type}</span>
-                                <strong class="ms-2">${log.message}</strong>
-                                ${log.metadata && log.metadata.userId ? `<br><small class="text-muted">Usuario: ${log.metadata.userId}</small>` : ''}
-                            </div>
-                            <small class="text-muted">${new Date(log.timestamp).toLocaleString()}</small>
-                        </div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('logsList').innerHTML = logsHtml || '<p class="text-muted">No hay logs disponibles</p>';
-            } catch (error) {
-                console.error('Error loading logs:', error);
-            }
-        }
-        
-        // Load Backups
-        async function loadBackups() {
-            try {
-                const response = await fetch('/api/backups', { headers: authHeaders });
-                const backups = await response.json();
-                
-                const backupsHtml = backups.map(backup => `
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">${backup.name}</h6>
-                                    <small class="text-muted">
-                                        Creado: ${new Date(backup.created).toLocaleString()} | 
-                                        Tipo: ${backup.type || 'full'} | 
-                                        Elementos: ${backup.itemCount || 0}
-                                    </small>
-                                </div>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteBackup('${backup.name}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('backupsList').innerHTML = backupsHtml || '<p class="text-muted">No hay respaldos disponibles</p>';
-            } catch (error) {
-                console.error('Error loading backups:', error);
-            }
-        }
-        
-        // Create Backup
-        async function createBackup() {
-            try {
-                const response = await fetch('/api/backups', {
-                    method: 'POST',
-                    headers: authHeaders,
-                    body: JSON.stringify({ type: 'full' })
-                });
-                
-                if (response.ok) {
-                    showAlert('success', 'Respaldo creado exitosamente');
-                    loadBackups();
-                } else {
-                    showAlert('danger', 'Error al crear respaldo');
-                }
-            } catch (error) {
-                showAlert('danger', 'Error de conexión');
-            }
-        }
-        
-        // Show Alert
-        function showAlert(type, message) {
-            const alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show position-fixed" style="top: 20px; right: 20px; z-index: 9999;">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', alertHtml);
-            
-            setTimeout(() => {
-                const alert = document.querySelector('.alert');
-                if (alert) alert.remove();
-            }, 5000);
-        }
-        
-        // Logout
-        function logout() {
-            localStorage.removeItem('authToken');
-            window.location.href = '/';
-        }
-        
-        // Update preview in modal
-        document.getElementById('announcementTitle').addEventListener('input', updatePreview);
-        document.getElementById('announcementDescription').addEventListener('input', updatePreview);
-        document.getElementById('announcementColor').addEventListener('input', updatePreview);
-        
-        function updatePreview() {
-            document.getElementById('previewTitle').textContent = document.getElementById('announcementTitle').value || 'Título del Anuncio';
-            document.getElementById('previewDescription').textContent = document.getElementById('announcementDescription').value || 'Descripción del anuncio...';
-            document.getElementById('previewColor').textContent = 'Color: ' + document.getElementById('announcementColor').value;
-        }
-        
-        // Initialize dashboard on load
-        loadDashboard();
-    </script>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-gold" onclick="openSendModal('${id}')"><i class="fas fa-paper-plane me-1"></i>Enviar</button>
+                <button class="btn btn-sm btn-outline-primary" onclick="openEditModal('${id}')"><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteAnnouncement('${id}')"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// Crear modal
+function openCreateModal() {
+    document.getElementById('modalTitle').textContent = 'Nuevo Anuncio';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('a-id').value = '';
+    document.getElementById('a-id').disabled = false;
+    document.getElementById('a-title').value = '';
+    document.getElementById('a-desc').value = '';
+    document.getElementById('a-color').value = '#FFD700';
+    document.getElementById('a-image').value = '';
+    document.getElementById('options-container').innerHTML = '';
+    addOption();
+    new bootstrap.Modal(document.getElementById('announcementModal')).show();
+}
+
+// Editar modal
+function openEditModal(id) {
+    const a = announcements[id];
+    document.getElementById('modalTitle').textContent = 'Editar Anuncio';
+    document.getElementById('edit-id').value = id;
+    document.getElementById('a-id').value = id;
+    document.getElementById('a-id').disabled = true;
+    document.getElementById('a-title').value = a.title;
+    document.getElementById('a-desc').value = a.description;
+    document.getElementById('a-color').value = a.color || '#FFD700';
+    document.getElementById('a-image').value = a.image || '';
+    document.getElementById('options-container').innerHTML = '';
+    (a.options || []).forEach(o => addOption(o));
+    new bootstrap.Modal(document.getElementById('announcementModal')).show();
+}
+
+// Añadir opción
+function addOption(data = {}) {
+    const div = document.createElement('div');
+    div.className = 'border rounded p-2 mb-2 option-row';
+    div.innerHTML = `
+        <div class="row g-2 align-items-center">
+            <div class="col-5"><input type="text" class="form-control form-control-sm opt-label" placeholder="Ej: Plan Premium - $35" value="${data.label || ''}"></div>
+            <div class="col-4"><input type="text" class="form-control form-control-sm opt-desc" placeholder="Ej: 30 días" value="${data.description || ''}"></div>
+            <div class="col-2"><input type="text" class="form-control form-control-sm opt-emoji" placeholder="💎" value="${data.emoji || ''}"></div>
+            <div class="col-1"><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.option-row').remove()"><i class="fas fa-times"></i></button></div>
+        </div>`;
+    document.getElementById('options-container').appendChild(div);
+}
+
+// Guardar anuncio
+async function saveAnnouncement() {
+    const editId = document.getElementById('edit-id').value;
+    const id = editId || document.getElementById('a-id').value.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_-]/g,'');
+    const title = document.getElementById('a-title').value.trim();
+    const description = document.getElementById('a-desc').value.trim();
+    if (!id || !title || !description) { alert('ID, título y descripción son obligatorios'); return; }
+    const options = [];
+    document.querySelectorAll('.option-row').forEach(row => {
+        const label = row.querySelector('.opt-label').value.trim();
+        const desc = row.querySelector('.opt-desc').value.trim();
+        const emoji = row.querySelector('.opt-emoji').value.trim();
+        if (label && desc) options.push({ label, description: desc, value: label.toLowerCase().replace(/[^a-z0-9]/g,'_').substring(0,100), emoji: emoji || undefined });
+    });
+    const announcement = { title, description, color: document.getElementById('a-color').value, options };
+    const img = document.getElementById('a-image').value.trim();
+    if (img) announcement.image = img;
+    let res;
+    if (editId) {
+        res = await fetch(`/api/announcements/${editId}`, { method: 'PUT', headers: H, body: JSON.stringify(announcement) });
+    } else {
+        res = await fetch('/api/announcements', { method: 'POST', headers: H, body: JSON.stringify({ id, announcement }) });
+    }
+    const data = await res.json();
+    if (res.ok) { bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide(); toast('success', data.message); loadAnnouncements(); }
+    else toast('danger', data.error);
+}
+
+// Eliminar anuncio
+async function deleteAnnouncement(id) {
+    if (!confirm(`¿Eliminar el anuncio "${id}"?`)) return;
+    const res = await fetch(`/api/announcements/${id}`, { method: 'DELETE', headers: H });
+    const data = await res.json();
+    if (res.ok) { toast('success', data.message); loadAnnouncements(); }
+    else toast('danger', data.error);
+}
+
+// Modal enviar
+function openSendModal(id) {
+    document.getElementById('send-announcement-id').value = id;
+    document.getElementById('send-channel-id').value = '';
+    document.getElementById('send-result').innerHTML = '';
+    new bootstrap.Modal(document.getElementById('sendModal')).show();
+}
+
+// Enviar anuncio a Discord
+async function sendAnnouncement() {
+    const id = document.getElementById('send-announcement-id').value;
+    const channelId = document.getElementById('send-channel-id').value.trim();
+    const resEl = document.getElementById('send-result');
+    if (!channelId) { resEl.innerHTML = '<div class="alert alert-warning">Ingresa el ID del canal</div>'; return; }
+    resEl.innerHTML = '<div class="text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Enviando...</div>';
+    const res = await fetch(`/api/announcements/${id}/send`, { method: 'POST', headers: H, body: JSON.stringify({ channelId }) });
+    const data = await res.json();
+    if (res.ok) {
+        resEl.innerHTML = `<div class="alert alert-success"><i class="fas fa-check me-2"></i>${data.message}</div>`;
+        setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('sendModal')).hide(), 1500);
+    } else {
+        resEl.innerHTML = `<div class="alert alert-danger"><i class="fas fa-times me-2"></i>${data.error}</div>`;
+    }
+}
+
+// Config
+async function loadConfig() {
+    const r = await fetch('/api/config/global', { headers: H });
+    const c = await r.json();
+    document.getElementById('cfg-prefix').value = c.prefix || '!';
+    document.getElementById('cfg-color').value = c.embedColor || '#FFD700';
+    document.getElementById('cfg-category').value = c.ticketCategory || 'TICKETS';
+    document.getElementById('cfg-logchannel').value = c.logChannel || 'logs';
+    document.getElementById('cfg-roles').value = (c.adminRoles || []).join(', ');
+}
+document.getElementById('configForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const config = {
+        prefix: document.getElementById('cfg-prefix').value,
+        embedColor: document.getElementById('cfg-color').value,
+        ticketCategory: document.getElementById('cfg-category').value,
+        logChannel: document.getElementById('cfg-logchannel').value,
+        adminRoles: document.getElementById('cfg-roles').value.split(',').map(r => r.trim()).filter(Boolean)
+    };
+    const res = await fetch('/api/config/global', { method: 'PUT', headers: H, body: JSON.stringify(config) });
+    const data = await res.json();
+    toast(res.ok ? 'success' : 'danger', data.message || data.error);
+});
+
+// Logs
+async function loadLogs() {
+    const r = await fetch('/api/logs?days=7', { headers: H });
+    const logs = await r.json();
+    const el = document.getElementById('logs-list');
+    if (!logs.length) { el.innerHTML = '<p class="text-muted text-center py-3">Sin logs disponibles</p>'; return; }
+    el.innerHTML = `<table class="table table-sm table-hover">
+        <thead><tr><th>Tipo</th><th>Mensaje</th><th>Fecha</th></tr></thead>
+        <tbody>${logs.map(l => `<tr><td><span class="badge bg-secondary">${l.type}</span></td><td>${l.message}</td><td><small class="text-muted">${new Date(l.timestamp).toLocaleString()}</small></td></tr>`).join('')}</tbody>
+    </table>`;
+}
+
+// Toast
+function toast(type, msg) {
+    const el = document.createElement('div');
+    el.className = `alert alert-${type} position-fixed shadow`;
+    el.style = 'top:20px;right:20px;z-index:9999;min-width:280px';
+    el.innerHTML = `<i class="fas fa-${type==='success'?'check':'times'}-circle me-2"></i>${msg}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+}
+
+function logout() { localStorage.removeItem('authToken'); window.location.href = '/'; }
+
+// Init
+loadDashboard();
+</script>
 </body>
 </html>

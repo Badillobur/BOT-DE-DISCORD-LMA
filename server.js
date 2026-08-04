@@ -251,6 +251,83 @@ app.delete('/api/announcements/:id', authenticateToken, async (req, res) => {
     }
 });
 
+// Enviar anuncio a un canal de Discord
+app.post('/api/announcements/:id/send', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { channelId } = req.body;
+
+        if (!channelId) {
+            return res.status(400).json({ error: 'El ID del canal es requerido' });
+        }
+
+        const configPath = path.join(__dirname, 'config.json');
+        const config = await fs.readJson(configPath);
+        const announcement = config.announcements && config.announcements[id];
+
+        if (!announcement) {
+            return res.status(404).json({ error: 'Anuncio no encontrado' });
+        }
+
+        // Obtener cliente de Discord
+        let client;
+        try {
+            client = require('./index.js');
+        } catch (e) {
+            return res.status(500).json({ error: 'Bot de Discord no disponible' });
+        }
+
+        // Buscar el canal
+        const channel = client.channels.cache.get(channelId);
+        if (!channel) {
+            return res.status(404).json({ error: 'Canal no encontrado. Verifica que el ID sea correcto y el bot esté en el servidor.' });
+        }
+
+        // Construir embed
+        const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder } = require('discord.js');
+
+        const embed = new EmbedBuilder()
+            .setTitle(announcement.title)
+            .setDescription(announcement.description)
+            .setColor(announcement.color || '#FFD700')
+            .setTimestamp();
+
+        if (announcement.image) embed.setImage(announcement.image);
+
+        // Construir menú de selección
+        const selectMenu = new StringSelectMenuBuilder()
+            .setCustomId(`ticket_select_${id}`)
+            .setPlaceholder('Seleccionar una opción')
+            .setMinValues(1)
+            .setMaxValues(1);
+
+        if (announcement.options && announcement.options.length > 0) {
+            announcement.options.forEach(opt => {
+                const option = { label: opt.label, description: opt.description, value: opt.value };
+                if (opt.emoji) option.emoji = opt.emoji;
+                selectMenu.addOptions(option);
+            });
+        } else {
+            return res.status(400).json({ error: 'El anuncio no tiene opciones de ticket configuradas' });
+        }
+
+        const row = new ActionRowBuilder().addComponents(selectMenu);
+
+        await channel.send({ embeds: [embed], components: [row] });
+
+        await LogManager.log(
+            LogManager.LogTypes.ANNOUNCEMENT_CREATE,
+            `Announcement sent to channel: ${channelId}`,
+            { adminUser: req.user.username, announcementId: id, channelId }
+        );
+
+        res.json({ success: true, message: `Anuncio enviado a <#${channelId}>` });
+    } catch (error) {
+        console.error('Error enviando anuncio:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ===========================
 // API ROUTES - ESTADÍSTICAS
 // ===========================
